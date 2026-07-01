@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Pengeluaran Real Perjalanan Dinas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #000;
+            background-color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+				max-width: 800px;
+				margin: 0 auto;
+				padding: 5px 20px 20px 20px;
+				box-sizing: border-box;
+				border: 2px solid #000;
+			}
+        h4 {
+            text-align: center;
+            text-decoration: underline;
+            margin-bottom: 30px;
+            font-weight: bold;
+            font-size: 15px;
+        }
+        .info-table {
+            width: 100%;
+            margin-bottom: 15px;
+            border-collapse: collapse;
+        }
+        .info-table td {
+            padding: 2px 0;
+            vertical-align: top;
+        }
+        .info-table td:first-child { width: 120px; }
+        .info-table td:nth-child(2) { width: 15px; }
+
+        .bold { font-weight: bold; }
+        p { margin: 10px 0; text-align: justify; }
+        ol { padding-left: 20px; margin: 5px 0 10px 0; }
+        li { margin-bottom: 10px; text-align: justify; }
+
+        /* TABEL UTAMA */
+        .main-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0 15px 0;
+        }
+        .main-table th, .main-table td {
+            border: 1px solid #000;
+            padding: 8px;
+            vertical-align: top;
+        }
+        .main-table th {
+			font-weight: bold;
+			text-align: center;
+			background-color: #f9f9f9;
+			border-bottom: 1px solid #000;    
+		}
+        .col-no { width: 40px; text-align: center; }
+        .col-jumlah { width: 180px; }
+
+        .amount-wrapper {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+        .rp { text-align: left; }
+        .angka { text-align: right; }
+
+        .spacer-row td {
+			height: 15px;
+			border-top: none;
+			border-bottom: none;
+		}
+		
+		.spacer-line td {
+			border-top: 1px solid #000;
+		}
+		
+        .bottom-row td {
+			border-top: 1px solid #000;
+			border-bottom: 1px solid #000;      
+			font-weight: bold;
+			padding-top: 6px;
+			padding-bottom: 6px;
+		}
+
+        /* TANDA TANGAN SEJAJAR DENGAN RUANG CUKUP */
+        .signature-section {
+		display: flex;
+		justify-content: space-between;
+		align-items: stretch;          /* ← UBAH: samakan tinggi kedua kotak */
+		margin-top: 30px;
+		gap: 20px;
+	}
+	.signature-box {
+		width: 45%;
+		text-align: center;
+		min-height: 180px;             /* ← UBAH: tambah tinggi biar ada ruang tanda tangan */
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between; /* ← UBAH: header di atas, nama di bawah */
+	}
+        .ttd-header {
+            text-align: center;
+            margin-bottom: 0;
+            flex-shrink: 0;
+        }
+        .name-block {
+            margin-top: auto;            /* dorong ke bawah */
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .name-title {
+			font-weight: bold;
+			text-decoration: underline;
+			margin: 0;
+			line-height: 1.2;
+		}
+		.nip-text {
+			margin: 0;
+			line-height: 1.2;
+		}
+
+        /* DROPDOWN MODERN & KECIL, INLINE DENGAN TEKS */
+        .select-pejabat {
+            display: inline-block;
+            width: auto;
+            min-width: 190px;
+            font-size: 12px;
+            padding: 4px 8px;
+            margin-left: 5px;
+            vertical-align: middle;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+            background: white;
+            color: #000;
+            font-family: Arial, sans-serif;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .select-pejabat:focus {
+            border-color: #2563eb;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
+        }
+
+        /* TOMBOL AKSI */
+        .action-buttons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+        .btn-action {
+            padding: 8px 15px;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 10px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-print {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+        .btn-close {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        }
+        .btn-action:active {
+            transform: translateY(0);
+        }
+
+        @media print {
+    .action-buttons { display: none !important; }
+    .select-pejabat { display: none !important; }
+    .container {
+        padding: 5px 20px 20px 20px;
+        border: none;
+    }
+    body { background: white; }
+    
+    #tampil-tanggal-ttd {
+        border-bottom: none !important;
+        display: inline !important;
+        min-width: auto !important;
+    }
+    
+    /* NIP tetap terlihat normal saat cetak */
+    #tampil-nip, #tampil-nip-ttd {
+        outline: none !important;
+        border: none !important;
+        background: transparent !important;
+    }
+}
+    </style>
+</head>
+<body>
+
+<div class="action-buttons">
+    <button class="btn-action btn-print" onclick="window.print()">CETAK</button>
+    <button class="btn-action btn-close" onclick="tutupHalaman()">TUTUP</button>
+</div>
+
+<div class="container">
+    <h4>DAFTAR PENGELUARAN REAL PERJALANAN DINAS</h4>
+
+    <p>Yang bertanda tangan di bawah ini:</p>
+
+    <table class="info-table">
+        <tr><td>Nama</td><td>:</td><td id="tampil-nama" class="bold">......................................................</td></tr>
+        <tr><td>NIP</td><td>:</td><td id="tampil-nip" contenteditable="true" style="outline: none; border: none; background: transparent;">......................................................</td></tr>
+        <tr><td>Jabatan</td><td>:</td><td id="tampil-jabatan">......................................................</td></tr>
+        <tr><td>Kegiatan</td><td>:</td><td id="tampil-kegiatan" contenteditable="true" style="font-weight: 500; font-style: italic; color: #0f172a; text-align: justify;">......................................................</td></tr>
+    </table>
+
+    <p>Berdasarkan Surat Perintah Perjalanan Dinas (SPPD) tanggal <span id="tampil-tanggal">...</span> Nomor: <span id="tampil-nomor">...</span>, dengan ini saya menyatakan dengan sesungguhnya bahwa:</p>
+
+    <ol>
+        <li>
+            Biaya Perjalanan dinas di bawah ini yang tidak dapat diperoleh bukti-bukti pengeluarannya terdiri dari:
+            <table class="main-table">
+                <thead>
+                    <tr>
+                        <th class="col-no">No</th>
+                        <th>Uraian</th>
+                        <th class="col-jumlah">Jumlah</th>
+                    </tr>
+                </thead>
+                <tbody id="tampil-tabel-rincian"></tbody>
+            </table>
+        </li>
+        <li>
+            Jumlah Uang tersebut pada angka <span id="ket-angka-poin">1</span> di atas benar-benar digunakan untuk pelaksanaan perjalanan dinas dimaksud dan apabila dikemudian hari terdapat kelebihan atas pembayaran saya bersedia untuk mengembalikan kelebihan tersebut kepada kas negara.
+        </li>
+    </ol>
+
+    <p>Demikian pernyataan ini kami buat dengan sebenarnya untuk dipergunakan sebagaimana mestinya.</p>
+
+    <div class="signature-section">
+        <!-- KOTAK KIRI: MENYETUJUI -->
+        <div class="signature-box">
+            <div class="ttd-header">
+                <span>Mengetahui/Menyetujui :</span>
+                <select id="pilih-penyetuju" class="select-pejabat" onchange="gantiPenyetuju()">
+                    <option value="kasnar">KASNAR, SE. M.Si</option>
+                    <option value="rudi">Drs. MUHAMMAD RUDI, M. Si</option>                   
+                </select>
+                <div id="jabatan-penyetuju" style="margin-top: 5px;">Plt. Kepala Dinas</div>
+            </div>
+            <!-- Ruang kosong otomatis didorong oleh margin-top: auto pada .name-block -->
+            <div class="name-block">
+                <div class="name-title" id="nama-penyetuju">KASNAR, SE. M.Si</div>
+                <div class="nip-text">Nip. <span id="nip-penyetuju">19700405 200212 1 007</span></div>
+            </div>
+        </div>
+
+        <!-- KOTAK KANAN: YANG MENERIMA -->
+<div class="signature-box">
+    <div class="ttd-header">
+        <div>Belopa, <span id="tampil-tanggal-ttd" contenteditable="true" style="border-bottom: 1px dashed #94a3b8; min-width: 120px; display: inline-block;"></span></div>
+    </div>
+    <div class="ttd-header">
+        <div>Yang Menerima,</div>
+    </div>
+    <div class="name-block">
+        <div class="name-title" id="tampil-nama-ttd">NAMA PEGAWAI</div>
+        <div class="nip-text">Nip. <span id="tampil-nip-ttd" contenteditable="true" style="outline: none; border: none; background: transparent;">.....................................</span></div>
+    </div>
+  </div>
+ </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let dataMentah = localStorage.getItem('paketPengeluaranReal');
+        
+        if (dataMentah) {
+            let data = JSON.parse(dataMentah);
+
+            const daftarNip = {
+                "Drs. Muhammad Rudi, M. Si": "19740411 199302 1 002",
+                "KASNAR, SE, M. Si": "19700405 200212 1 007",
+                "MUHAMMAD REZA AKBAR, S.SI": "19891011 202012 1 001",               
+                "HASRAL, ST": "19710424 199603 1 004",
+                "HASNIAH, SE": "19770128 200604 2 019",
+                "ANDI HAFSAH, S.IP, M.Si": "19810909 200803 2 001",
+				"A. RAODAH, SE": "19710121 201001 2 004",    
+				"ANDI IRAWAN RASYID, S. Or": "19840118 200903 1 001",				
+                "RUDI SANTOSO, S.Sos": "19811223 200502 1 004",                
+                "EMMY CHADIANA, ST": "19760407 200801 2 008",                
+                "ACHMAR, S.Sos": "19790718 200012 1 005",
+                "ANDI MASRI PANAUNGI, S. Sos": "19770818 200801 1 009",
+                "JUNAHIR, SE": "19770607 201101 1 004",
+                "MASRIPA, S.AN": "19780704 200701 2 010",
+                "HETTY ZULASTRY, S.AN": "19761224 200801 2 007",
+                "HAMDIANA HD, S.AN": "19840225 200901 2 001",
+                "RATNA, SE": "19731231 200906 2 004",
+                "ANTON, S.M": "19740403 200801 1 011",
+                "M.B. RESKI": "19751202 200801 1 005",
+                "RAHMAWATI, S. AN": "19760714 202421 2 001",
+                "ERNAWATI MOHA, S. AN": "19830704 202421 2 002",
+                "ANAMARIANA, S. Kom": "19910102 202421 2 001",
+                "ANDI RAHMAD, S. Kom": "19841226 202421 1 001",
+                "SARIAMA HASAN, A.Md.Kom": "19830305 202521 2 037",
+                "PAULIL RANRENG ANDI AHMAD, S.Kom": "19930729 202521 1 035"
+            };
+
+            function bersihkanNama(nama) {
+                if (!nama) return "";
+                return nama.toLowerCase().replace(/[.,\s]/g, '');
+            }
+
+            let namaBersihCari = bersihkanNama(data.nama);
+            let nipDitemukan = "......................................................"; 
+
+            for (let namaAsli in daftarNip) {
+                if (bersihkanNama(namaAsli) === namaBersihCari) {
+                    nipDitemukan = daftarNip[namaAsli];
+                    break;
+                }
+            }
+            
+            document.getElementById('tampil-nama').innerText = data.nama || "-";
+            document.getElementById('tampil-nama-ttd').innerText = data.nama || "-";
+            document.getElementById('tampil-jabatan').innerText = data.jabatan || "-";
+            document.getElementById('tampil-nomor').innerText = data.nomor || "-";
+            document.getElementById('tampil-tanggal').innerText = data.tanggal || "-";
+            document.getElementById('tampil-tanggal-ttd').innerText = data.tanggal || "-";
+
+            if(document.getElementById('tampil-kegiatan')) {
+                document.getElementById('tampil-kegiatan').innerText = (data.kegiatan && data.kegiatan !== "-") ? data.kegiatan : "......................................................";
+            }
+
+// Isi NIP hanya jika masih kosong atau placeholder
+const elNip = document.getElementById('tampil-nip');
+const elNipTtd = document.getElementById('tampil-nip-ttd');
+
+if (elNip) {
+    let isiSekarang = elNip.innerText.trim();
+    if (isiSekarang === '......................................................' || isiSekarang === '') {
+        elNip.innerText = nipDitemukan;
+    }
+}
+if (elNipTtd) {
+    let isiSekarang = elNipTtd.innerText.trim();
+    if (isiSekarang === '.....................................' || isiSekarang === '') {
+        elNipTtd.innerText = nipDitemukan;
+    }
+}
+
+// Sinkronisasi NIP: saat NIP di tabel info diedit, NIP di TTD ikut berubah
+if (elNip) {
+    elNip.addEventListener('input', function() {
+        if (elNipTtd) {
+            elNipTtd.innerText = this.innerText.trim();
+        }
+    });
+}
+
+// Sinkronisasi sebaliknya: saat NIP di TTD diedit, NIP di tabel info juga ikut
+if (elNipTtd) {
+    elNipTtd.addEventListener('input', function() {
+        if (elNip) {
+            elNip.innerText = this.innerText.trim();
+        }
+    });
+}
+            
+            const jumlahData = data.rincian ? data.rincian.length : 0;
+            const spanPoin = document.getElementById('ket-angka-poin');
+            if (spanPoin) {
+                spanPoin.innerText = jumlahData > 1 ? "1 sampai dengan " + jumlahData : "1";
+            }
+
+            let tbody = document.getElementById('tampil-tabel-rincian');
+            let htmlBaris = "";
+            let totalSemua = 0;
+            
+            if(data.rincian) {
+                data.rincian.forEach((item, i) => {
+					let rincianTeks = item.rincian;
+					let namaRincianKecil = rincianTeks.toLowerCase();
+					
+					let butuhTujuan = namaRincianKecil.includes("transportasi") || 
+									  namaRincianKecil.includes("tiket") || 
+									  namaRincianKecil.includes("bbm") ||
+									  namaRincianKecil.includes("sewa kendaraan");
+									  
+					if (butuhTujuan && data.tujuan && data.tujuan.trim() !== "") {
+						let prefix = data.tujuan.toLowerCase().startsWith("dari") ? " " : " dari ";
+						rincianTeks += prefix + data.tujuan; 
+					}
+
+					let detailVol = item.vol > 1 ? ` (${item.vol} hari)` : '';
+					
+					// Cek apakah perlu garis putus-putus
+					let jumlahItem = data.rincian.length;
+					let isLast = (i === jumlahItem - 1);
+					let borderStyle = (jumlahItem > 1 && !isLast) ? 'border-bottom: 1px dashed #999;' : 'border-bottom: none;';
+					
+					htmlBaris += `
+						<tr>
+							<td class="col-no" style="${borderStyle}">${i + 1}.</td>
+							<td style="${borderStyle}">${rincianTeks}${detailVol}</td>
+							<td class="col-jumlah" style="${borderStyle}">
+								<div class="amount-wrapper">
+									<span class="rp">Rp.</span>
+									<span class="angka">${formatTitik(item.jumlah)}</span>
+								</div>
+							</td>
+						</tr>
+					`;
+					totalSemua += item.jumlah;
+				});
+            }
+            
+		let spacerClass = (data.rincian && data.rincian.length > 1) ? 'spacer-row spacer-line' : 'spacer-row';
+		htmlBaris += `
+			
+			<tr class="bottom-row">
+                    <td></td>
+                    <td style="text-align: right; padding-right: 15px;">Jumlah</td>
+                    <td class="col-jumlah">
+                        <div class="amount-wrapper">
+                            <span class="rp">Rp.</span>
+                            <span class="angka">${formatTitik(totalSemua)}</span>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            
+            if(tbody) tbody.innerHTML = htmlBaris;
+            localStorage.removeItem('paketPengeluaranReal');
+            
+        } else {
+            alert("Gunakan tombol 'Cetak Pengeluaran Real' dari file utama Bos!");
+        }
+    });
+
+		function formatTitik(n) {
+			return new Intl.NumberFormat('id-ID').format(n);
+		}
+		
+		// Daftar nama bulan
+	const daftarBulan = [
+		"Januari", "Februari", "Maret", "April", "Mei", "Juni",
+		"Juli", "Agustus", "September", "Oktober", "November", "Desember"
+	];
+
+	// Fitur saran cerdas untuk tanggal TTD
+	const elTgl = document.getElementById('tampil-tanggal-ttd');
+	let tahunBerjalan = new Date().getFullYear();
+
+	elTgl.addEventListener('keydown', function(e) {
+		// Jika user tekan Tab atau Enter, terima saran
+		if (e.key === 'Tab' || e.key === 'Enter') {
+			e.preventDefault();
+			let teks = this.innerText.trim();
+			let kata = teks.split(' ');
+			
+			// Cek apakah kata terakhir adalah nama bulan (tanpa tahun)
+			let kataTerakhir = kata[kata.length - 1];
+			let cocokBulan = daftarBulan.find(b => b.toLowerCase() === kataTerakhir.toLowerCase());
+			
+			if (cocokBulan && !teks.includes(String(tahunBerjalan))) {
+				// Tambahkan tahun berjalan
+				this.innerText = teks + ' ' + tahunBerjalan;
+			}
+			
+			// Pindahkan kursor ke akhir
+			let range = document.createRange();
+			let sel = window.getSelection();
+			range.selectNodeContents(this);
+			range.collapse(false);
+			sel.removeAllRanges();
+			sel.addRange(range);
+		}
+	});
+
+	elTgl.addEventListener('input', function(e) {
+		let teks = this.innerText.toLowerCase().trim();
+		let kata = teks.split(' ');
+		let kataTerakhir = kata[kata.length - 1];
+		
+		// Abaikan jika kata terakhir adalah angka (tahun)
+		if (/^\d+$/.test(kataTerakhir)) return;
+		
+		// Cek apakah kata terakhir mirip dengan nama bulan (minimal 2 huruf)
+		if (kataTerakhir.length >= 2) {
+			let cocok = daftarBulan.find(b => b.toLowerCase().startsWith(kataTerakhir));
+			
+			if (cocok) {
+				// Ambil teks sebelum kata terakhir
+				let teksAwal = kata.slice(0, -1).join(' ');
+				let spasi = teksAwal ? ' ' : '';
+				
+				// Update teks dengan bulan lengkap + tahun berjalan
+				this.innerText = teksAwal + spasi + cocok + ' ' + tahunBerjalan;
+				
+				// Pilih teks tahun agar bisa langsung diganti jika perlu
+				let range = document.createRange();
+				let sel = window.getSelection();
+				let textNode = this.childNodes[0] || this;
+				let posAkhir = this.innerText.length;
+				let posAwal = posAkhir - String(tahunBerjalan).length;
+				
+				range.setStart(textNode, posAwal);
+				range.setEnd(textNode, posAkhir);
+				sel.removeAllRanges();
+				sel.addRange(range);
+			}
+		}
+	});
+
+    const daftarPenyetuju = {
+        "kasnar": { nama: "KASNAR, SE.,M.Si", nip: "19700405 200212 1 007", jabatan: "Plt. Kepala Dinas," },
+        "rudi": { nama: "Drs. MUHAMMAD RUDI, M. Si", nip: "19740411 199302 1 002", jabatan: "Kepala Dinas," }
+    };
+
+    function gantiPenyetuju() {
+        const pilihan = document.getElementById('pilih-penyetuju').value;
+        const data = daftarPenyetuju[pilihan];
+        
+        if (data) {
+            document.getElementById('nama-penyetuju').innerText = data.nama;
+            document.getElementById('nip-penyetuju').innerText = data.nip;
+            // BARIS BARU: Mengubah teks jabatan sesuai pilihan dropdown
+            document.getElementById('jabatan-penyetuju').innerText = data.jabatan;
+        }
+    }
+
+    function tutupHalaman() {
+        window.close();
+        setTimeout(function() { window.location.href = 'Rincian SPD.html'; }, 300);
+    }
+</script>
+
+</body>
+</html>

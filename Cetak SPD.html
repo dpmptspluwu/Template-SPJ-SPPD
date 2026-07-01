@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Cetak SPD - DPMPTSP Luwu</title>
+    <style>
+        /* ========================================= */
+        /* FONT & BODY DASAR (LAYAR)                 */
+        /* ========================================= */
+        body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; background: #eef2f5; line-height: 1.3; color: #000; margin: 0; padding: 0; }
+        
+        /* PANEL KONTROL NAVBAR (FULL WIDTH & MELAYANG) */
+        .panel-kontrol { 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            background: #1e293b; 
+            border-bottom: 3px solid #3b82f6; 
+            padding: 12px 30px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .panel-kiri { display: flex; align-items: center; gap: 20px; }
+        .panel-title { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; font-weight: bold; color: white; margin: 0; display: flex; align-items: center; gap: 8px; }
+        
+        .grup-pilih { display: flex; align-items: center; gap: 10px; background: #334155; padding: 4px 12px; border-radius: 6px; }
+        .grup-pilih label { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; color: #94a3b8; font-weight: bold; }
+        .panel-kontrol select { 
+            padding: 6px 10px; font-size: 12px; width: 300px; border-radius: 4px; 
+            border: 1px solid #475569; background: #f8f9fa; color: #0f172a; 
+            font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold; cursor: pointer; transition: 0.2s; 
+        }
+        .panel-kontrol select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.3); }
+        
+        /* GRUP TOMBOL OFFLINE KEREN */
+        .panel-kanan { display: flex; gap: 10px; }
+        .btn-cetak, .btn-tutup { 
+            padding: 8px 16px; cursor: pointer; font-weight: bold; font-family: 'Segoe UI', Arial, sans-serif; 
+            border-radius: 5px; font-size: 11px; letter-spacing: 0.5px; transition: all 0.2s ease; 
+            display: flex; align-items: center; gap: 6px; border: none;
+        }
+        .btn-cetak { background: #3b82f6; color: white; box-shadow: 0 2px 5px rgba(59,130,246,0.3); }
+        .btn-cetak:hover { background: #2563eb; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(59,130,246,0.4); }
+        
+        .btn-tutup { background: #ef4444; color: white; box-shadow: 0 2px 5px rgba(239,68,68,0.3); }
+        .btn-tutup:hover { background: #dc2626; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(239,68,68,0.4); }
+
+        /* ========================================= */
+        /* KERTAS & TATA LETAK DOKUMEN               */
+        /* ========================================= */
+        .kertas { background: white; max-width: 800px; margin: 30px auto; padding: 40px 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #ddd; position: relative; }
+        
+        /* KOP SURAT PADAT & ELEGAN */
+        .kop-surat { text-align: center; position: relative; padding-bottom: 10px; border-bottom: 3px solid black; margin-bottom: 15px; min-height: 100px; line-height: 1.15; }
+        .logo-luwu { position: absolute; left: 0; top: 0; width: 90px; height: 108px; }
+        .kop-text { margin-left: 95px; margin-right: 95px; } 
+        
+        /* ========================================= */
+        /* TABEL SURAT TUNGGAL (ANTI GARIS TEBAL)    */
+        /* ========================================= */
+        .tabel-utama { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        .tabel-utama th, .tabel-utama td { border: 1px solid black; padding: 6px; vertical-align: top; }
+        
+        /* LOGIKA CSS CERDAS UNTUK GARIS PUTUS-PUTUS PENGIKUT */
+        .baris-pengikut td { border-bottom: 1.5px dashed #555 !important; }
+        /* Matikan garis atas agar tidak nabrak garis putus-putus dari baris di atasnya */
+        .baris-pengikut + .baris-pengikut td { border-top: none !important; }
+        /* Baris terakhir WAJIB garis solid agar menyatu dengan tabel utama */
+        .baris-pengikut:last-child td { border-bottom: 1px solid black !important; }
+        
+        /* INPUT EDITABLE ELEGAN */
+        .editable { outline: none; border-bottom: 1px dotted #ccc; transition: all 0.2s ease; }
+        .editable:hover { background-color: #f8f9fa; border-bottom: 1px dotted #888; cursor: text; }
+        .editable:focus { background-color: #f8f9fa; border-bottom: 1px solid #333; }
+        .terkunci { background-color: #f1f5f9; font-weight: bold; pointer-events: none; color: #1e293b; } 
+
+        .tanda-tangan { float: right; width: 300px; margin-top: 15px; text-align: left; page-break-inside: avoid; }
+
+        /* ========================================= */
+        /* MODE CETAK (PRINT) - PRESISI F4 (FOLIO)   */
+        /* ========================================= */
+        @media print {
+            @page { 
+                size: 215mm 330mm; 
+                /* Margin Cerdas: Atas 1.5cm, Kanan 1.5cm, Bawah 2cm, Kiri 1.5cm */
+                margin: 1cm 1.5cm 1.8cm 1.5cm; 
+            }
+            body { padding: 0; background: white; font-size: 11pt; line-height: 1.25; margin: 0; }
+            .kertas { padding: 0; margin: 0; box-shadow: none; border: none; width: 100%; }
+            .panel-kontrol, .no-print { display: none !important; }
+            
+            /* MENCEGAH BARIS TABEL TERPOTONG KE HALAMAN 2 */
+            .tabel-utama tr { page-break-inside: avoid; }
+            .tanda-tangan { page-break-inside: avoid; }
+            
+            .tabel-utama th, .tabel-utama td { padding: 5px 6px; } 
+            
+            span.editable, div.editable { border-bottom: none !important; background-color: transparent !important; }
+            td.editable { background-color: transparent !important; }
+            .terkunci { background-color: transparent !important; color: black; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR PANEL KONTROL -->
+    <div class="panel-kontrol no-print">
+        <div class="panel-kiri">
+            <h3 class="panel-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                PANEL KONTROL SPD
+            </h3>
+            <div class="grup-pilih">
+                <label>PILIH KETUA :</label>
+                <select id="pilih-ketua" onchange="prosesDataRombongan()"></select>
+            </div>
+        </div>
+        <div class="panel-kanan">
+            <button class="btn-cetak" onclick="window.print()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                CETAK SPD
+            </button>
+            <button class="btn-tutup" onclick="tutupHalaman()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                TUTUP
+            </button>
+        </div>
+    </div>
+
+    <div class="kertas">
+        <!-- KOP SURAT -->
+        <div class="kop-surat">
+            <img src="logo.png" class="logo-luwu" alt="Logo Luwu">
+            <div class="kop-text">
+                <div style="font-size: 18px; font-weight: bold; margin-bottom: 2px;">PEMERINTAH KABUPATEN LUWU</div>
+                <div style="font-size: 21px; font-weight: bold; margin-bottom: 3px;">DINAS PENANAMAN MODAL DAN PELAYANAN<br>TERPADU SATU PINTU</div>
+                <div style="font-size: 11px; margin-bottom: 2px;">Jl. Jend. Sudirman (Depan Lapangan A. Djemma) Kel. Senga Kec. Belopa Kode Pos 91994</div>
+                <div style="font-size: 11px; margin-bottom: 6px;">
+                    website: <span style="color: #0000FF;">https://dpmptspluwukab.co.id</span> 
+                    &nbsp;&nbsp; email: <span style="color: #0000FF;">dpmptspluwu@gmail.com</span>
+                </div>
+                <div style="font-size: 14px; font-weight: bold;">BELOPA</div>
+            </div>
+        </div>
+
+        <table style="width: 350px; float: right; margin-bottom: 20px; border: none; font-size: 11pt; border-collapse: collapse;">
+            <tr><td width="100" style="padding:2px; border:none;">Lembar ke</td><td width="10" style="padding:2px; border:none;">:</td><td contenteditable="true" class="editable" style="padding:2px; border:none;"></td></tr>
+            <tr><td style="padding:2px; border:none;">Kode Nomor</td><td style="padding:2px; border:none;">:</td><td contenteditable="true" class="editable" style="padding:2px; border:none;"></td></tr>
+            <tr><td style="padding:2px; border:none;">Nomor</td><td style="padding:2px; border:none;">:</td><td id="tampil-nomor-atas" contenteditable="true" class="editable" style="padding:2px; border:none;"></td></tr>
+        </table>
+        <div style="clear: both;"></div>
+
+        <div style="text-align: center; font-weight: bold; text-decoration: underline; margin-bottom: 15px; font-size: 12pt;">
+            SURAT PERJALANAN DINAS (SPD)
+        </div>
+
+        <!-- TABEL UTAMA DIRUBAH MENJADI 4 KOLOM AGAR PRESISI TANPA TABEL GANDA -->
+        <table class="tabel-utama">
+            <colgroup>
+                <col style="width: 4%;">
+                <col style="width: 46%;">
+                <col style="width: 20%;">
+                <col style="width: 30%;">
+            </colgroup>
+
+            <tr>
+                <td style="text-align: center;">1.</td>
+                <td><span id="label-kpa-atas">Pengguna Anggaran</span></td>
+                <td colspan="2">
+                    <select id="pilih-kpa" class="editable no-print" onchange="gantiKPA()" style="width:100%; margin-bottom:5px; padding: 4px; border: 1px solid #ccc; font-family: inherit;">
+                        <option value="kasnar">KASNAR, SE, M.Si</option>
+                        <option value="rudi">Drs. MUHAMMAD RUDI, M. Si</option>
+                    </select>
+                    <div id="nama-kpa" contenteditable="true" class="editable" style="font-weight: bold;">KASNAR, SE, M.Si</div>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: center;">2.</td>
+                <td>Nama/ NIP Pegawai yang melaksanakan perjalanan dinas</td>
+                <td colspan="2"><span id="tampil-nama" class="editable" contenteditable="true" style="font-weight:bold;"></span> <br> <span id="tampil-nip" contenteditable="true" class="editable">NIP. .........................</span></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;">3.</td>
+                <td>
+                    <div style="margin-bottom: 6px;">a. Pangkat dan Golongan</div>
+                    <div style="margin-bottom: 6px;">b. Jabatan/Instansi</div>
+                    <div>c. Tingkat Biaya Perjalanan Dinas</div>
+                </td>
+                <td colspan="2">
+                    <div id="tampil-pangkat" contenteditable="true" class="editable" style="margin-bottom: 6px;">-</div>
+                    <div id="tampil-jabatan" contenteditable="true" class="editable" style="margin-bottom: 6px;">-</div>
+                    <div id="tampil-tingkat" contenteditable="true" class="editable">-</div>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: center;">4.</td>
+                <td>Maksud perjalanan dinas</td>
+                <td colspan="2" id="tampil-kegiatan" contenteditable="true" class="editable" style="text-align: justify;"></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;">5.</td>
+                <td>Alat angkutan yang dipergunakan</td>
+                <td colspan="2" id="tampil-angkutan" contenteditable="true" class="editable"></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;">6.</td>
+                <td>
+                    <div style="margin-bottom: 6px;">a. Tempat berangkat</div>
+                    <div>b. Tempat tujuan</div>
+                </td>
+                <td colspan="2">
+                    <div id="tampil-berangkat" contenteditable="true" class="editable" style="margin-bottom: 6px;">Belopa</div>
+                    <div id="tampil-tujuan" contenteditable="true" class="editable"></div>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: center;">7.</td>
+                <td>
+                    <div style="margin-bottom: 6px;">a. Lamanya perjalanan dinas</div>
+                    <div style="margin-bottom: 6px;">b. Tanggal berangkat</div>
+                    <div>c. Tanggal harus kembali</div>
+                </td>
+                <td colspan="2">
+                    <div style="margin-bottom: 6px;" id="tampil-lama" class="terkunci"><b>01</b> (<i>satu</i>) Hari</div>
+                    <div contenteditable="true" class="editable" id="tampil-tanggal-berangkat" style="margin-bottom: 6px;"></div>
+                    <div contenteditable="true" class="editable" id="tampil-tanggal-kembali"></div>
+                </td>
+            </tr>
+            
+            <!-- BLOK PENGIKUT DISUNTIK LEWAT JAVASCRIPT DI BAWAH SINI -->
+            <tbody id="tbody-pengikut"></tbody>
+
+            <tr>
+                <td style="text-align: center;">9.</td>
+                <td>
+                    <div style="margin-bottom: 6px; font-weight: bold;">Pembebanan anggaran</div>
+                    <div style="margin-bottom: 6px;">a. SKPD</div>
+                    <div>b. Kode rekening</div>
+                </td>
+                <td colspan="2">
+                    <div style="margin-bottom: 6px; color: transparent;">-</div>
+                    <div style="margin-bottom: 6px;" contenteditable="true" class="editable">Dinas Penanaman Modal dan PTSP Kab. Luwu</div>
+                    <div contenteditable="true" class="editable"></div>
+                </td>
+            </tr>
+            
+            <tr>
+                <td style="text-align: center;">10.</td>
+                <td>Keterangan lain-lain</td>
+                <td colspan="2" style="padding: 0;">
+                    <div contenteditable="true" class="editable" style="min-height: 25px; padding: 6px; width: 100%; box-sizing: border-box;"></div>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Blok Tanda Tangan -->
+        <div class="tanda-tangan">
+            <div contenteditable="true" class="editable">Dikeluarkan di Belopa</div>
+            <div style="margin-bottom: 25px;">Tanggal <span id="tampil-tanggal-ttd" contenteditable="true" class="editable"></span></div>
+            <div id="label-kpa-ttd" contenteditable="true" class="editable">Pengguna Anggaran</div>
+            <br><br><br><br>
+            <b id="nama-kpa-ttd" style="text-decoration: underline;" contenteditable="true" class="editable">KASNAR, SE, M.Si</b><br>
+            <span id="nip-kpa-ttd" contenteditable="true" class="editable">NIP. 19700405 200212 1 007</span>
+        </div>
+        <div style="clear: both;"></div>
+    </div>
+
+    <script>
+        const daftarNip = {
+            "Drs. MUHAMMAD RUDI, M. Si": "19740411 199302 1 002",
+            "KASNAR, SE, M. Si": "19700405 200212 1 007",
+            "MUHAMMAD REZA AKBAR, S.SI": "19891011 202012 1 001",               
+            "HASRAL, ST": "19710424 199603 1 004",
+            "HASNIAH, SE": "19770128 200604 2 019",
+            "ANDI HAFSAH, S.IP, M.Si": "19810909 200803 2 001",
+            "A. RAODAH, SE": "19710121 201001 2 004",    
+            "ANDI IRAWAN RASYID, S. Or": "19840118 200903 1 001",				
+            "RUDI SANTOSO, S.Sos": "19811223 200502 1 004",                
+            "EMMY CHADIANA, ST": "19760407 200801 2 008",                
+            "ACHMAR, S.Sos": "19790718 200012 1 005",
+            "ANDI MASRI PANAUNGI, S. Sos": "19770818 200801 1 009",
+            "JUNAHIR, SE": "19770607 201101 1 004",
+            "MASRIPA, S.AN": "19780704 200701 2 010",
+            "HETTY ZULASTRY, S.AN": "19761224 200801 2 007",
+            "HAMDIANA HD, S.AN": "19840225 200901 2 001",
+            "RATNA, SE": "19731231 200906 2 004",
+            "ANTON, S.M": "19740403 200801 1 011",
+            "M.B. RESKI": "19751202 200801 1 005",
+            "RAHMAWATI, S. AN": "19760714 202421 2 001",
+            "ERNAWATI MOHA, S. AN": "19830704 202421 2 002",
+            "ANAMARIANA, S. Kom": "19910102 202421 2 001",
+            "ANDI RAHMAD, S. Kom": "19841226 202421 1 001",
+            "SARIAMA HASAN, A.Md.Kom": "19830305 202521 2 037",
+            "PAULIL RANRENG ANDI AHMAD, S.Kom": "19930729 202521 1 035"
+        };
+
+        const daftarBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        let tahunBerjalan = new Date().getFullYear();
+        let dataRombongan = null;
+
+        document.addEventListener("DOMContentLoaded", function() {
+            let mentahData = localStorage.getItem('paketCetakSPD');
+            if (mentahData) {
+                dataRombongan = JSON.parse(mentahData);
+                
+                let selectKetua = document.getElementById('pilih-ketua');
+                selectKetua.innerHTML = "";
+                dataRombongan.rombongan.forEach((orang) => {
+                    let opt = document.createElement('option');
+                    opt.value = orang.nama;
+                    opt.innerText = orang.nama + " - " + orang.jabatanLengkap.split('/')[0];
+                    selectKetua.appendChild(opt);
+                });
+
+                // =========================================================
+                // LOGIKA CERDAS: OTOMATIS UBAH "ST" MENJADI "SPD" (AMAN)
+                // =========================================================
+                let nomorAsli = dataRombongan.nomor || ""; // Pengaman jika nomor kosong
+                document.getElementById('tampil-nomor-atas').innerText = nomorAsli.replace("ST", "SPD");
+                // =========================================================
+
+                document.getElementById('tampil-kegiatan').innerText = dataRombongan.kegiatan;
+                document.getElementById('tampil-tujuan').innerText = dataRombongan.tujuan;
+                document.getElementById('tampil-angkutan').innerText = dataRombongan.angkutan || "Mobil Dinas";
+                document.getElementById('tampil-tingkat').innerText = dataRombongan.kategori || "-";
+                
+                document.getElementById('tampil-tanggal-berangkat').innerText = dataRombongan.tanggal;
+                document.getElementById('tampil-tanggal-kembali').innerText = dataRombongan.tanggal;
+                document.getElementById('tampil-tanggal-ttd').innerText = dataRombongan.tanggal;
+
+                prosesDataRombongan();
+                kalkulasiHariOtomatis();
+
+            } else {
+                alert("Silakan klik tombol 'CETAK SPD' dari Control Panel Rincian SPD terlebih dahulu!");
+            }
+        });
+
+        function tutupHalaman() { window.close(); }
+
+        const elemenTanggal = ['tampil-tanggal-berangkat', 'tampil-tanggal-kembali', 'tampil-tanggal-ttd'];
+        elemenTanggal.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+
+            el.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab' || e.key === 'Enter') {
+                    e.preventDefault();
+                    let teks = this.innerText.trim();
+                    let kata = teks.split(' ');
+                    let kataTerakhir = kata[kata.length - 1];
+                    let cocokBulan = daftarBulan.find(b => b.toLowerCase() === kataTerakhir.toLowerCase());
+                    if (cocokBulan && !teks.includes(String(tahunBerjalan))) {
+                        this.innerText = teks + ' ' + tahunBerjalan;
+                    }
+                    pindahKursorKeAkhir(this);
+                    kalkulasiHariOtomatis();
+                }
+            });
+
+            el.addEventListener('input', function(e) {
+                let teks = this.innerText.toLowerCase().trim();
+                let kata = teks.split(' ');
+                let kataTerakhir = kata[kata.length - 1];
+                if (/^\d+$/.test(kataTerakhir)) { kalkulasiHariOtomatis(); return; }
+                
+                if (kataTerakhir.length >= 2) {
+                    let cocok = daftarBulan.find(b => b.toLowerCase().startsWith(kataTerakhir));
+                    if (cocok) {
+                        let teksAwal = kata.slice(0, -1).join(' ');
+                        let spasi = teksAwal ? ' ' : '';
+                        this.innerText = teksAwal + spasi + cocok + ' ' + tahunBerjalan;
+                        
+                        let range = document.createRange();
+                        let sel = window.getSelection();
+                        let textNode = this.childNodes[0] || this;
+                        let posAkhir = this.innerText.length;
+                        let posAwal = posAkhir - String(tahunBerjalan).length;
+                        
+                        range.setStart(textNode, posAwal);
+                        range.setEnd(textNode, posAkhir);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    }
+                }
+            });
+        });
+
+        function pindahKursorKeAkhir(el) {
+            let range = document.createRange();
+            let sel = window.getSelection();
+            range.selectNodeContents(el);
+            range.collapse(false);
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
+
+        function parsingTanggalIndo(str) {
+            let parts = str.trim().split(' ');
+            if(parts.length < 3) return null;
+            let d = parseInt(parts[0]);
+            let mName = parts[1].toLowerCase();
+            let y = parseInt(parts[2]);
+            let indexBulan = daftarBulan.findIndex(b => b.toLowerCase() === mName);
+            if(indexBulan === -1 || isNaN(d) || isNaN(y)) return null;
+            return new Date(y, indexBulan, d);
+        }
+
+        function angkaKeTeks(a) {
+            let bilangan = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas"];
+            let kalimat = "";
+            if (a < 12) kalimat = bilangan[a];
+            else if (a < 20) kalimat = angkaKeTeks(a - 10) + " belas";
+            else if (a < 100) kalimat = angkaKeTeks(Math.floor(a / 10)) + " puluh " + angkaKeTeks(a % 10);
+            return kalimat.trim();
+        }
+
+        function kalkulasiHariOtomatis() {
+            let tglBerangkatStr = document.getElementById('tampil-tanggal-berangkat').innerText;
+            let tglKembaliStr = document.getElementById('tampil-tanggal-kembali').innerText;
+            let d1 = parsingTanggalIndo(tglBerangkatStr);
+            let d2 = parsingTanggalIndo(tglKembaliStr);
+            let spanLama = document.getElementById('tampil-lama');
+
+            if (d1 && d2 && d2 >= d1) {
+                let diffTime = Math.abs(d2 - d1);
+                let selisihHari = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; 
+                let numFormat = selisihHari < 10 ? "0" + selisihHari : selisihHari;
+                let teksFormat = angkaKeTeks(selisihHari);
+                spanLama.innerHTML = `<b>${numFormat}</b> (<i>${teksFormat}</i>) Hari`;
+            } else if (d1 && d2 && d2 < d1) {
+                spanLama.innerHTML = `<b>--</b> (<i>error tgl terbalik</i>) Hari`;
+            } else {
+                spanLama.innerHTML = `<b>...</b> (......) Hari`;
+            }
+        }
+
+        const daftarKPA = {
+            "kasnar": { nama: "KASNAR, SE, M.Si", nip: "19700405 200212 1 007", peran: "Pengguna Anggaran" },
+            "rudi": { nama: "Drs. MUHAMMAD RUDI, M. Si", nip: "19740411 199302 1 002", peran: "Pengguna Anggaran" }
+        };
+
+        function gantiKPA() {
+            const pilihan = document.getElementById('pilih-kpa').value;
+            const data = daftarKPA[pilihan];
+            if (data) {
+                document.getElementById('nama-kpa').innerText = data.nama;
+                document.getElementById('nama-kpa-ttd').innerText = data.nama;
+                document.getElementById('nip-kpa-ttd').innerText = "NIP. " + data.nip;
+                document.getElementById('label-kpa-atas').innerText = data.peran;
+                document.getElementById('label-kpa-ttd').innerText = data.peran;
+            }
+        }
+
+        document.getElementById('nama-kpa').addEventListener('input', function() { document.getElementById('nama-kpa-ttd').innerText = this.innerText; });
+        document.getElementById('nama-kpa-ttd').addEventListener('input', function() { document.getElementById('nama-kpa').innerText = this.innerText; });
+
+        function ekstrakTglLahir(namaOrang) {
+            let nip = cariNipPegawai(namaOrang);
+            if (!nip || nip === ".........................") return "-";
+            let angkaNip = nip.replace(/[^0-9]/g, '');
+            if(angkaNip.length >= 8) {
+                let tahun = angkaNip.substring(0, 4);
+                let bulan = angkaNip.substring(4, 6);
+                let tanggal = angkaNip.substring(6, 8);
+                return `${tanggal}-${bulan}-${tahun}`;
+            }
+            return "-";
+        }
+
+        function cariNipPegawai(namaCari) {
+            let namaB = namaCari.toLowerCase().replace(/[.,\s]/g, '');
+            for (let namaAsli in daftarNip) {
+                if (namaAsli.toLowerCase().replace(/[.,\s]/g, '') === namaB) {
+                    return daftarNip[namaAsli];
+                }
+            }
+            return ".........................";
+        }
+
+        function prosesDataRombongan() {
+            if(!dataRombongan) return;
+            let namaKetuaTerpilih = document.getElementById('pilih-ketua').value;
+            let ketua = dataRombongan.rombongan.find(p => p.nama === namaKetuaTerpilih);
+            
+            document.getElementById('tampil-nama').innerText = ketua.nama;
+            document.getElementById('tampil-nip').innerText = "NIP. " + cariNipPegawai(ketua.nama);
+
+            let splitJabatan = ketua.jabatanLengkap.split('/');
+            if(splitJabatan.length > 1) {
+                document.getElementById('tampil-jabatan').innerText = splitJabatan[0].trim();
+                document.getElementById('tampil-pangkat').innerText = splitJabatan.slice(1).join('/').trim().replace(/\(|\)/g, '');
+            } else {
+                document.getElementById('tampil-jabatan').innerText = ketua.jabatanLengkap;
+                document.getElementById('tampil-pangkat').innerText = "-";
+            }
+
+            let pengikutList = dataRombongan.rombongan.filter(p => p.nama !== namaKetuaTerpilih);
+            let tbodyPengikut = document.getElementById('tbody-pengikut');
+            
+            // Hitung total baris untuk rowspan kolom "8." (Minimal 4 baris: 1 header + 3 pengikut kosong)
+            let totalRows = pengikutList.length > 0 ? pengikutList.length + 1 : 4;
+            
+            // Render Header Pengikut (Solid Bottom Line)
+            let html = `
+            <tr>
+                <td rowspan="${totalRows}" style="text-align: center; vertical-align: top;">8.</td>
+                <td style="font-weight: bold; border-bottom: 1px solid black;">Pengikut: Nama</td>
+                <td style="font-weight: bold; text-align: center; border-bottom: 1px solid black;">Tanggal Lahir</td>
+                <td style="font-weight: bold; padding-left: 10px; border-bottom: 1px solid black;">Keterangan</td>
+            </tr>`;
+
+            // Render Daftar Pengikut (Dashed Lines lewat CSS baris-pengikut)
+            if(pengikutList.length > 0) {
+                pengikutList.forEach((pengikut, i) => {
+                    let keteranganJab = pengikut.jabatanLengkap.split('/')[0].trim();
+                    let tglLahir = ekstrakTglLahir(pengikut.nama);
+                    html += `
+                    <tr class="baris-pengikut">
+                        <td contenteditable="true" class="editable">${i+1}. ${pengikut.nama}</td>
+                        <td style="text-align: center;" contenteditable="true" class="editable">${tglLahir}</td>
+                        <td style="padding-left: 10px;" contenteditable="true" class="editable">${keteranganJab}</td>
+                    </tr>`;
+                });
+            } else {
+                for(let i=1; i<=3; i++) {
+                    html += `
+                    <tr class="baris-pengikut">
+                        <td contenteditable="true" class="editable">${i}. </td>
+                        <td contenteditable="true" class="editable"></td>
+                        <td contenteditable="true" class="editable"></td>
+                    </tr>`;
+                }
+            }
+            
+            tbodyPengikut.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

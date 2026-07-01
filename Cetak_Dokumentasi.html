@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Cetak Laporan Dokumentasi - DPMPTSP Luwu</title>
+    <style>
+        /* ========================================= */
+        /* FONT & BODY DASAR (LAYAR)                 */
+        /* ========================================= */
+        body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; background: #eef2f5; line-height: 1.4; color: #000; margin: 0; padding: 0; }
+        
+        /* PANEL KONTROL NAVBAR (ELEGAN & COMPACT) */
+        .panel-kontrol { 
+            position: sticky; top: 0; z-index: 1000; background: #1e293b; border-bottom: 3px solid #10b981; 
+            padding: 10px 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; 
+            justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box;
+        }
+        .panel-kiri { display: flex; align-items: center; gap: 20px; }
+        .panel-title { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; font-weight: bold; color: white; margin: 0; display: flex; align-items: center; gap: 6px; }
+        
+        /* SLIDER UKURAN FOTO CERDAS */
+        .grup-slider { display: flex; align-items: center; gap: 8px; background: #334155; padding: 4px 12px; border-radius: 4px; border: 1px solid #475569; }
+        .grup-slider label { color: #94a3b8; font-size: 10px; font-weight: bold; font-family: 'Segoe UI', Arial, sans-serif; letter-spacing: 0.5px; }
+        .grup-slider input[type="range"] { height: 4px; cursor: pointer; width: 100px; accent-color: #10b981; }
+
+        .grup-tombol { display: flex; gap: 8px; align-items: center; }
+        
+        /* TOMBOL MINI & PROFESIONAL */
+        .btn { 
+            padding: 6px 12px; cursor: pointer; font-weight: bold; font-family: 'Segoe UI', Arial, sans-serif; 
+            border-radius: 4px; font-size: 10px; letter-spacing: 0.5px; transition: all 0.2s ease; border: none; display: flex; align-items: center; gap: 5px;
+        }
+        .btn-upload { background: #f59e0b; color: white; box-shadow: 0 2px 4px rgba(245,158,11,0.2); position: relative; overflow: hidden; }
+        .btn-upload:hover { background: #d97706; transform: translateY(-1px); }
+        .btn-upload input[type="file"] { position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; opacity: 0; outline: none; background: white; cursor: inherit; display: block; }
+        
+        .btn-cetak { background: #10b981; color: white; box-shadow: 0 2px 4px rgba(16,185,129,0.2); }
+        .btn-cetak:hover { background: #059669; transform: translateY(-1px); }
+        .btn-tutup { background: #ef4444; color: white; box-shadow: 0 2px 4px rgba(239,68,68,0.2); }
+        .btn-tutup:hover { background: #dc2626; transform: translateY(-1px); }
+
+        /* ========================================= */
+        /* KERTAS & TATA LETAK DOKUMEN               */
+        /* ========================================= */
+        /* Padding layar disesuaikan agar rasio mirip dengan cetak kertas F4 yang marginnya tipis */
+        .kertas { background: white; max-width: 800px; margin: 30px auto; padding: 30px 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #ddd; }
+        
+        /* KOP SURAT PRESISI */
+        .kop-surat { text-align: center; position: relative; min-height: 100px; line-height: 1.15; }
+        .logo-luwu { position: absolute; left: 0; top: 0; width: 90px; height: 108px; }
+        .kop-text { margin-left: 95px; margin-right: 95px; } 
+        
+        .garis-tebal { border-bottom: 3px solid black; margin-top: 10px; }
+        .garis-tipis { border-bottom: 1px solid black; margin-top: 2px; margin-bottom: 25px; }
+
+        .judul-laporan { text-align: center; font-weight: bold; font-size: 12pt; text-transform: uppercase; margin-bottom: 30px; }
+        .sub-bab { font-weight: bold; margin-top: 15px; margin-bottom: 5px; }
+        .isi-bab { padding-left: 20px; text-align: justify; margin-bottom: 15px; position: relative; }
+        
+        table.tabel-waktu { width: 100%; border-collapse: collapse; margin-top: 5px; }
+        table.tabel-waktu td { padding: 3px 0; vertical-align: top; }
+
+        .editable { outline: none; border-bottom: 1px dotted #ccc; transition: 0.2s; min-width: 50px; display: inline-block; }
+        .editable:hover { background-color: #f8f9fa; border-bottom: 1px dotted #888; cursor: text; }
+        .editable:focus { background-color: #f8f9fa; border-bottom: 1px solid #333; }
+
+        /* PLACEHOLDER CERDAS (ANTI CETAK) */
+        .hint-placeholder { color: #94a3b8; font-style: italic; font-size: 10pt; display: block; margin-top: 5px; }
+
+        /* ========================================= */
+        /* GRID FOTO DINAMIS (BISA DIATUR UKURANNYA) */
+        /* ========================================= */
+        .foto-container { 
+            display: flex; 
+            flex-wrap: wrap; /* Mengizinkan foto turun ke bawah / sejajar berdasarkan ukuran */
+            justify-content: center; /* Foto selalu di tengah */
+            gap: 15px; /* Jarak antar foto */
+            margin-top: 15px; 
+            width: 100%;
+        }
+        
+        .foto-wrapper { 
+            position: relative; 
+            width: 100%; /* Default 100% penuh, nanti diubah lewat slider */
+            transition: all 0.3s ease; 
+            page-break-inside: avoid; 
+        }
+
+        .foto-preview { 
+            width: 100%; 
+            height: auto; 
+            max-height: 600px; /* Diperbesar batas max tinggi agar foto landscape bisa sangat luas */
+            object-fit: contain; 
+            border: 2px solid #000; 
+            padding: 4px; 
+            box-sizing: border-box; 
+            background: #fff; 
+            cursor: pointer; 
+            transition: 0.2s; 
+        }
+        
+        .foto-preview:hover { border-color: #ef4444; box-shadow: 0 0 10px rgba(239,68,68,0.5); }
+        .foto-hapus-hint { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            background: rgba(239,68,68,0.9); color: white; padding: 6px 12px; border-radius: 4px; 
+            font-family: Arial; font-size: 10px; font-weight: bold; opacity: 0; pointer-events: none; transition: 0.2s; 
+        }
+        .foto-wrapper:hover .foto-hapus-hint { opacity: 1; }
+
+        /* ========================================= */
+        /* MODE CETAK (PRINT) - PRESISI F4 (FOLIO)   */
+        /* ========================================= */
+        @media print {
+            @page { 
+                /* UKURAN PASTI F4/FOLIO */
+                size: 215mm 330mm; 
+                /* MARGIN SUPER RAPI & LEGA: Atas 1cm, Kanan 1.2cm, Bawah 1.5cm, Kiri 1.2cm */
+                margin: 0cm 1.2cm 1.5cm 1.2cm; 
+            }
+            body { padding: 0; background: white; margin: 0; }
+            .kertas { padding: 0; margin: 0; box-shadow: none; border: none; width: 100%; }
+            .panel-kontrol, .no-print { display: none !important; }
+            .editable { border-bottom: none !important; background-color: transparent !important; }
+            .hint-placeholder { display: none !important; } /* MENGHILANGKAN PLACEHOLDER SAAT DICETAK */
+            .foto-preview { border: 2px solid #000; padding: 3px; }
+            .foto-wrapper:hover .foto-hapus-hint { opacity: 0 !important; display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="panel-kontrol no-print">
+        <div class="panel-kiri">
+            <h3 class="panel-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                PANEL DOKUMENTASI
+            </h3>
+            
+            <div class="grup-slider">
+                <label>UKURAN FOTO:</label>
+                <input type="range" id="slider-foto" min="30" max="100" value="100" oninput="ubahUkuranFoto(this.value)">
+            </div>
+        </div>
+
+        <div class="grup-tombol">
+            <div class="btn btn-upload">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                TAMBAH FOTO
+                <input type="file" accept="image/*" onchange="tambahFoto(event)">
+            </div>
+            <button class="btn btn-cetak" onclick="window.print()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                CETAK
+            </button>
+            <button class="btn btn-tutup" onclick="tutupHalaman()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                TUTUP
+            </button>
+        </div>
+    </div>
+
+    <div class="kertas">
+        <div class="kop-surat">
+            <img src="logo.png" class="logo-luwu" alt="Logo Luwu">
+            <div class="kop-text">
+                <div style="font-size: 18px; font-weight: bold; margin-bottom: 2px;">PEMERINTAH KABUPATEN LUWU</div>
+                <div style="font-size: 21px; font-weight: bold; margin-bottom: 3px;">DINAS PENANAMAN MODAL DAN PELAYANAN<br>TERPADU SATU PINTU</div>
+                <div style="font-size: 9pt; margin-bottom: 2px;">Jl. Jend. Sudirman (Depan Lapangan A. Djemma) Kel. Senga Kec. Belopa Kode Pos 91994</div>
+                <div style="font-size: 9pt; margin-bottom: 6px;">
+                    website: <span style="color: #0000FF;">https://dpmptspluwukab.co.id</span> 
+                    &nbsp;&nbsp; email: <span style="color: #0000FF;">dpmptspluwu@gmail.com</span>
+                </div>
+                <div style="font-size: 14pt; font-weight: bold;">BELOPA</div>
+            </div>
+        </div>
+        <div class="garis-tebal"></div>
+        <div class="garis-tipis"></div>
+        
+        <div class="judul-laporan">
+            <div contenteditable="true" class="editable">LAPORAN HASIL PELAKSANAAN TUGAS</div>
+            <div style="font-size: 11pt; margin-top: 5px;">DI <span id="tampil-tujuan-judul" class="editable" contenteditable="true"></span></div>
+        </div>
+
+        <div class="sub-bab">A. DASAR HUKUM :</div>
+        <div class="isi-bab">
+            1. Surat Perintah Tugas Kepala DPMPTSP Nomor: <span id="tampil-nomor" class="editable" contenteditable="true"></span>
+        </div>
+
+        <div class="sub-bab">B. WAKTU PELAKSANAAN :</div>
+        <div class="isi-bab">
+            2. Pertemuan dilaksanakan pada:<br>
+            <table class="tabel-waktu">
+                <tr>
+                    <td style="width: 140px; padding-left: 15px;">Hari/Tanggal</td>
+                    <td style="width: 10px;">:</td>
+                    <td id="tampil-hari-tanggal" class="editable" contenteditable="true" style="font-weight: bold;"></td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 15px;">Tempat</td>
+                    <td>:</td>
+                    <td class="editable" contenteditable="true">Di <span id="tampil-tujuan"></span></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="sub-bab">C. ISI LAPORAN</div>
+        <div class="isi-bab editable" contenteditable="true" style="width: 100%; box-sizing: border-box;">
+            Telah dilaksanakan <b id="tampil-kegiatan"></b> yang bertempat di <b id="tampil-tujuan-2"></b>. Kegiatan ini dilaksanakan pada <span id="tampil-hari-tanggal-2"></span>. Adapun hasil dari pelaksanaan kegiatan tersebut adalah untuk memastikan operasional berjalan lancar sesuai dengan peraturan perundang-undangan yang berlaku. 
+            
+            <span class="hint-placeholder no-print">
+                [Silakan ketik rincian/catatan khusus hasil perjalanan dinas di sini... Teks panduan abu-abu ini tidak akan ikut tercetak di kertas]
+            </span>
+        </div>
+
+        <div class="sub-bab">D. DOKUMENTASI</div>
+        
+        <div id="tempat-foto" class="foto-container"></div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let dataMentah = localStorage.getItem('paketCetakSPD') || localStorage.getItem('paketPengeluaranReal');
+            
+            if(dataMentah) {
+                let dataSppd = JSON.parse(dataMentah);
+
+                let nomorLaporan = dataSppd.nomor || "";
+                document.getElementById('tampil-nomor').innerText = nomorLaporan.replace("SPD", "ST"); 
+                
+                document.getElementById('tampil-tujuan-judul').innerText = (dataSppd.tujuan || "-").toUpperCase();
+                document.getElementById('tampil-tujuan').innerText = dataSppd.tujuan || "-";
+                document.getElementById('tampil-tujuan-2').innerText = dataSppd.tujuan || "-";
+                
+                document.getElementById('tampil-kegiatan').innerText = dataSppd.kegiatan || "-";
+                
+                let hariTanggal = dapatkanHari(dataSppd.tanggal) + " / " + dataSppd.tanggal;
+                document.getElementById('tampil-hari-tanggal').innerText = hariTanggal;
+                document.getElementById('tampil-hari-tanggal-2').innerText = "hari " + dapatkanHari(dataSppd.tanggal) + ", tanggal " + dataSppd.tanggal;
+            }
+        });
+		
+		// ==========================================
+        // FUNGSI TOMBOL TUTUP CERDAS KEMBALI KE PANEL
+        // ==========================================
+        function tutupHalaman() { 
+            window.close(); // Menutup tab saat ini (jika dibuka di tab baru)
+            
+            // Logika cadangan: Jika dibuka di tab yang sama, akan langsung dikembalikan ke Control Panel
+            setTimeout(function() { 
+                window.location.href = 'Rincian SPD V.1.html'; 
+            }, 300);
+        }
+
+        function dapatkanHari(tglString) {
+            if(!tglString || tglString === "-") return "...";
+            const bulanIndo = {"januari":0, "februari":1, "maret":2, "april":3, "mei":4, "juni":5, "juli":6, "agustus":7, "september":8, "oktober":9, "november":10, "desember":11};
+            const namaHari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+            
+            let parts = tglString.toLowerCase().split(' ');
+            if(parts.length >= 3) {
+                let d = parseInt(parts[0]);
+                let m = bulanIndo[parts[parts.length - 2]]; 
+                let y = parseInt(parts[parts.length - 1]);
+                
+                if(!isNaN(d) && m !== undefined && !isNaN(y)) {
+                    let dateObj = new Date(y, m, d);
+                    return namaHari[dateObj.getDay()];
+                }
+            }
+            return "...";
+        }
+
+        // FUNGSI MENGUBAH SKALA/UKURAN FOTO SECARA BEBAS
+        function ubahUkuranFoto(persentase) {
+            let wrappers = document.querySelectorAll('.foto-wrapper');
+            wrappers.forEach(w => {
+                w.style.width = persentase + '%';
+            });
+        }
+
+        function tambahFoto(event) {
+            let file = event.target.files[0];
+            if(!file) return;
+
+            let divWrapper = document.createElement("div");
+            divWrapper.className = "foto-wrapper"; 
+            
+            // Setel ukuran awal sesuai dengan angka slider saat foto ditambahkan
+            let sliderVal = document.getElementById('slider-foto').value;
+            divWrapper.style.width = sliderVal + '%';
+            
+            let img = document.createElement("img");
+            img.src = URL.createObjectURL(file);
+            img.className = "foto-preview";
+            
+            let hint = document.createElement("div");
+            hint.className = "foto-hapus-hint no-print";
+            hint.innerText = "KLIK UNTUK HAPUS";
+
+            img.onclick = function() {
+                if(confirm("Hapus foto dokumentasi ini?")) {
+                    divWrapper.remove();
+                }
+            };
+
+            divWrapper.appendChild(img);
+            divWrapper.appendChild(hint);
+            document.getElementById('tempat-foto').appendChild(divWrapper);
+            
+            event.target.value = ''; 
+        }
+    </script>
+</body>
+</html>
