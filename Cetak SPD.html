@@ -173,7 +173,7 @@
                 <td colspan="2">
                     <select id="pilih-kpa" class="editable no-print" onchange="gantiKPA()" style="width:100%; margin-bottom:5px; padding: 4px; border: 1px solid #ccc; font-family: inherit;">
                         <option value="kasnar">KASNAR, SE, M.Si</option>
-                        <option value="rudi">Drs. MUHAMMAD RUDI, M. Si</option>
+                        <option value="rudi">KASNAR, SE, M.Si</option>
                     </select>
                     <div id="nama-kpa" contenteditable="true" class="editable" style="font-weight: bold;">KASNAR, SE, M.Si</div>
                 </td>
@@ -261,7 +261,7 @@
         <div class="tanda-tangan">
             <div contenteditable="true" class="editable">Dikeluarkan di Belopa</div>
             <div style="margin-bottom: 25px;">Tanggal <span id="tampil-tanggal-ttd" contenteditable="true" class="editable"></span></div>
-            <div id="label-kpa-ttd" contenteditable="true" class="editable">Pengguna Anggaran</div>
+            <div id="label-kpa-ttd" contenteditable="true" class="editable">Kuasa Pengguna Anggaran</div>
             <br><br><br><br>
             <b id="nama-kpa-ttd" style="text-decoration: underline;" contenteditable="true" class="editable">KASNAR, SE, M.Si</b><br>
             <span id="nip-kpa-ttd" contenteditable="true" class="editable">NIP. 19700405 200212 1 007</span>
@@ -441,7 +441,7 @@
 
         const daftarKPA = {
             "kasnar": { nama: "KASNAR, SE, M.Si", nip: "19700405 200212 1 007", peran: "Pengguna Anggaran" },
-            "rudi": { nama: "Drs. MUHAMMAD RUDI, M. Si", nip: "19740411 199302 1 002", peran: "Pengguna Anggaran" }
+            "rudi": { nama: "KASNAR, SE, M.Si", nip: "19700405 200212 1 007", peran: "Kuasa Pengguna Anggaran" }
         };
 
         function gantiKPA() {
