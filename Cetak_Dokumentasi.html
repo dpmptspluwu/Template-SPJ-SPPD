@@ -379,7 +379,61 @@
                 }
             });
         }
+		
+		// =================================================================
+        // FITUR TANGGAL CERDAS UNTUK TANDA TANGAN (BELOPA)
+        // =================================================================
+        const elTglTtd = document.getElementById('tampil-tanggal-ttd');
+        if(elTglTtd) {
+            elTglTtd.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab' || e.key === 'Enter') {
+                    e.preventDefault();
+                    let teks = this.innerText.trim();
+                    let kata = teks.split(' ');
+                    let kataTerakhir = kata[kata.length - 1];
+                    let cocokBulan = daftarBulan.find(b => b.toLowerCase() === kataTerakhir.toLowerCase());
+                    
+                    if (cocokBulan && !teks.includes(String(tahunBerjalan))) {
+                        this.innerText = teks + ' ' + tahunBerjalan;
+                    }
+                    
+                    let range = document.createRange();
+                    let sel = window.getSelection();
+                    range.selectNodeContents(this);
+                    range.collapse(false);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+            });
 
+            elTglTtd.addEventListener('input', function(e) {
+                let teks = this.innerText.toLowerCase().trim();
+                let kata = teks.split(' ');
+                let kataTerakhir = kata[kata.length - 1];
+                
+                if (/^\d+$/.test(kataTerakhir)) return;
+                
+                if (kataTerakhir.length >= 2) {
+                    let cocok = daftarBulan.find(b => b.toLowerCase().startsWith(kataTerakhir));
+                    if (cocok) {
+                        let teksAwal = kata.slice(0, -1).join(' ');
+                        let spasi = teksAwal ? ' ' : '';
+                        this.innerText = teksAwal + spasi + cocok + ' ' + tahunBerjalan;
+                        
+                        let range = document.createRange();
+                        let sel = window.getSelection();
+                        let textNode = this.childNodes[0] || this;
+                        let posAkhir = this.innerText.length;
+                        let posAwal = posAkhir - String(tahunBerjalan).length;
+                        range.setStart(textNode, posAwal);
+                        range.setEnd(textNode, posAkhir);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    }
+                }
+            });
+        }
+		
         function ubahUkuranFoto(persentase) {
             let wrappers = document.querySelectorAll('.foto-wrapper');
             wrappers.forEach(w => {
