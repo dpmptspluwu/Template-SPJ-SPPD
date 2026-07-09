@@ -900,17 +900,22 @@ const biayaLuar = [
         const listMenerima = document.getElementById('list-menerima');
         if (!listMenerima) return;
         listMenerima.innerHTML = "";
-        
+               
+        let jumlahOrang = rekapData.length;
+
         rekapData.forEach((p, index) => {
             let subtotal = p.items.reduce((sum, item) => sum + item.jumlah, 0);
             let no = index + 1;
-            let sigLeft = no % 2 !== 0 ? `${no}. ........................` : ``;
-            let sigRight = no % 2 === 0 ? `${no}. ........................` : ``;
+                     
+            let teksKolomNo = jumlahOrang > 1 ? `${no}.` : ``;
+            let teksTTDNo = jumlahOrang > 1 ? `${no}. ` : ``;
             
-            // Diberikan pengaturan khusus (page-break-inside: avoid) agar baris TTD penerima tidak terpotong saat nyebrang halaman 2
+            let sigLeft = no % 2 !== 0 ? `${teksTTDNo}........................` : ``;
+            let sigRight = no % 2 === 0 ? `${teksTTDNo}........................` : ``;
+                        
             listMenerima.innerHTML += `
                 <tr style="page-break-inside: avoid;">
-                    <td width="5%" style="vertical-align: top; font-weight: bold; text-align: center;">${no}.</td>
+                    <td width="5%" style="vertical-align: top; font-weight: bold; text-align: center;">${teksKolomNo}</td>
                     <td width="40%" style="white-space: nowrap; vertical-align: top;">${p.nama}</td>
                     <td width="15%" style="vertical-align: top;">Rp. &nbsp;&nbsp; ${formatTitik(subtotal)}</td>
                     <td width="20%" style="vertical-align: bottom;">${sigLeft}</td>
@@ -1017,7 +1022,13 @@ const biayaLuar = [
             let bulanNama = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", 
                              "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
             let namaBulan = bulanNama[parseInt(bulanAngka) - 1];
-            document.getElementById('tampil-tanggal').innerText = `${hari} ${namaBulan} ${tahun}`;
+                        
+            let tanggalLengkap = `${hari} ${namaBulan} ${tahun}`;
+                       
+            document.getElementById('tampil-tanggal').innerText = tanggalLengkap;
+                        
+            let elTglBawah = document.getElementById('tampil-tanggal-ttd');
+            if(elTglBawah) elTglBawah.innerText = tanggalLengkap;
         }
     }
 
@@ -1220,7 +1231,7 @@ document.addEventListener("DOMContentLoaded", function() {
         "Juli", "Agustus", "September", "Oktober", "November", "Desember"
     ];
 
-    const elTglPPTK = document.getElementById('tampil-tanggal-pptk');
+    const elTglPPTK = document.getElementById('tampil-tanggal-ttd');
     let tahunBerjalan = new Date().getFullYear();
 
     if (elTglPPTK) {
