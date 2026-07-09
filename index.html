@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistem SPPD - DPMPTSP Luwu</title>
+    <style>
+        body { font-family: 'Times New Roman', Times, serif; margin: 20px; background-color: #eef2f5; font-size: 12px; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 950px; margin: auto; }
+        
+        /* KOP SURAT DENGAN LOGO */
+        .kop-surat { text-align: center; line-height: 1.2; border-bottom: 3px solid black; padding-bottom: 10px; margin-bottom: 15px; position: relative; }
+        .logo-luwu { position: absolute; left: 0; top: 0; width: 93px; height: 110px; }
+        
+        /* AREA INPUT */
+        .input-area { background: #ffffff; padding: 20px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ced4da; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        
+		/* Brankas Arsip Sticky */
+		.sticky-brankas {
+			position: sticky;
+			top: 0;
+			z-index: 999;
+			background: #fffbeb;
+			border: 1px solid #fde68a;
+			padding: 15px;
+			border-radius: 6px;
+			margin-bottom: 20px;
+			box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+		}
+		
+		.header-input { background: #2c3e50; color: white; padding: 10px; border-radius: 5px 5px 0 0; margin: -20px -20px 20px -20px; font-weight: bold; font-family: Arial, sans-serif; }
+        .input-group { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; align-items: flex-end; }
+        .field { display: flex; flex-direction: column; flex: 1; min-width: 140px; }
+        label { font-weight: bold; font-size: 11px; margin-bottom: 5px; color: #555; font-family: Arial, sans-serif; }
+        input, select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; font-family: inherit; }
+        input:focus, select:focus { border-color: #2c3e50; outline: none; }
+        
+        /* TABEL UTAMA - DIPADATKAN */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid black; padding: 4px 6px; vertical-align: top; }
+        th { background-color: #f8f9fa; font-size: 11px; text-transform: uppercase; }
+        
+        /* FOOTER & TTD */
+        .footer-section { margin-top: 20px; width: 100%; }
+        .terbilang-box { border-bottom: 0.5px solid black; border-top: 0.5px solid black; padding: 5px 0; margin-bottom: 15px; font-style: italic; }
+        .sig-container { display: flex; justify-content: space-between; margin-top: 15px; }
+        .sig-box { width: 45%; text-align: center; line-height: 1.3; }
+        
+        /* TABEL YANG MENERIMA */
+        .menerima-container { margin-top: 25px; }
+        .table-menerima { width: 90%; margin-left: auto; margin-right: auto; border: none; }
+        .table-menerima td { border: none; padding: 4px; vertical-align: bottom; font-size: 12px; }
+        
+        /* UTILITAS */
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .bold { font-weight: bold; }
+        .italic { 
+			font-style: italic; 
+			color: #000;               /* hitam pekat, lebih tajam dari #333 */
+			font-size: 11px;            /* sedikit lebih besar dari 11px */
+			font-weight: 400;           /* semi-bold, membuat huruf lebih berisi tanpa menghilangkan kemiringan */
+			font-family: 'Segoe UI', 'Times New Roman', Times, serif; /* fallback yang lebih jelas */
+		}
+		
+        /* ========================================= */
+        /* DESAIN TOMBOL */
+        /* ========================================= */
+        
+        /* Setelan Dasar Tombol */
+        .btn { 
+            padding: 12px 24px; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 8px; /* Bikin sudutnya melengkung halus */
+            font-weight: bold; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Font modern */
+            font-size: 12px;
+            transition: all 0.3s ease; /* Animasi mulus saat disentuh */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px; /* Jarak antara ikon dan teks */
+        }
+        
+        /* Tombol Tambah Biaya (Hijau Zamrud Elegan) */
+        .btn-add { 
+            background: linear-gradient(135deg, #10b981, #059669); 
+            color: white; 
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.25);
+            height: 100%; /* Menyesuaikan tinggi dengan kotak input */
+        }
+        .btn-add:hover { 
+            background: linear-gradient(135deg, #059669, #047857); 
+            transform: translateY(-2px); /* Efek tombol terangkat */
+            box-shadow: 0 6px 12px rgba(16, 185, 129, 0.4); 
+        }
+        .btn-add:active { transform: translateY(0); } /* Efek saat ditekan */
+
+        /* Wadah Tombol Bawah */
+			.action-buttons { 
+				display: flex; 
+				justify-content: space-between; 
+				align-items: center;
+				gap: 20px; 
+				margin-top: 35px; 
+			}
+			.action-buttons-left {
+				display: flex;
+				gap: 10px;
+			}
+			.action-buttons-right {
+				display: flex;
+				gap: 10px;
+			}
+
+        /* Tombol Cetak (Biru Samudra Premium) */
+        .btn-print { 
+            background: linear-gradient(135deg, #3b82f6, #2563eb); 
+            color: white; 
+            padding: 10px 20px; 
+            font-size: 12px;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); 
+        }
+        .btn-print:hover { 
+            background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 15px rgba(59, 130, 246, 0.45); 
+        }
+		
+		/* Tombol Hapus Riwayat Saran (Orange Elegan) */
+        .btn-clear-history { 
+            background: white; 
+            color: #f59e0b; 
+            border: 2px solid #f59e0b; 
+            padding: 10px 20px; 
+            font-size: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .btn-clear-history:hover { 
+            background: #fef3c7; 
+            color: #d97706; 
+            border-color: #d97706; 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 15px rgba(245, 158, 11, 0.15); 
+        }
+		
+        /* Tombol Reset 
+        .btn-reset { 
+            background: white; 
+            color: #ef4444; 
+            border: 2px solid #ef4444; 
+            padding: 10px 20px; 
+            font-size: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .btn-reset:hover { 
+            background: #fef2f2; 
+            color: #dc2626; 
+            border-color: #dc2626; 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 15px rgba(239, 68, 68, 0.15); 
+        }
+        
+        /* TAB KATEGORI */
+			.category-tab {
+				display: flex;
+				gap: 10px;
+				margin-bottom: 15px;
+			}
+			.tab-item {
+				padding: 5px 15px;
+				border: 2px solid #94a3b8;
+				border-radius: 15px;
+				cursor: pointer;
+				font-size: 12px;
+				font-weight: bold;
+				font-family: 'Segoe UI', Arial, sans-serif;
+				background: #f1f5f9;
+				color: #475569;
+				transition: all 0.3s ease;
+				letter-spacing: 0.3px;
+			}
+			.tab-item:hover {
+				background: #e2e8f0;
+				border-color: #64748b;
+				transform: translateY(-2px);
+				box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+			}
+			.tab-item.active {
+				background: linear-gradient(135deg, #1e40af, #3b82f6);
+				color: white;
+				border-color: #1e40af;
+				box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+			}
+
+		
+		.amount-wrapper {
+			display: flex;
+			justify-content: space-between;
+			width: 100%;
+		}
+		.rp-label {
+			text-align: left;
+			width: 30px; /* Lebar pasti agar Rp lurus sejajar ke bawah */
+		}
+		.price-value {
+			text-align: right;
+			flex-grow: 1;
+			font-weight: normal;   /* pastikan tidak bold */
+			font-family: 'Times New Roman', Times, serif;
+		}
+		
+		.bold .price-value,
+		tr.bold .price-value {
+			font-weight: bold !important;
+		}
+		
+        
+				.btn-delete-row {
+					color: white;
+					cursor: pointer;
+					font-size: 10px;              /* lebih kecil */
+					font-weight: bold;
+					margin-left: 6px;
+					text-decoration: none;
+					padding: 2px 6px;             /* padding lebih kecil ? bulatan lebih kecil */
+					border-radius: 50%;
+					background-color: #f87171;    /* merah lebih soft */
+					display: inline-block;
+					line-height: 1;
+					transition: all 0.2s ease;
+					box-shadow: 0 1px 3px rgba(239,68,68,0.25);
+					border: none;
+				}
+				.btn-delete-row:hover {
+					background-color: #ef4444;    /* hover jadi merah aslinya */
+					transform: scale(1.15);       /* membesar lebih halus */
+					box-shadow: 0 2px 8px rgba(239,68,68,0.5);
+					cursor: pointer;
+				}
+		
+        @media print {
+            .input-area, .btn-print, .btn-reset, .btn-clear-history, .no-print { display: none; }
+			.btn-delete-row { display: none !important; }   
+			body { background: white; margin: 0; font-size: 12px; }
+			.container { box-shadow: none; max-width: 100%; padding: 0; }
+            
+            
+            @page {
+                size: auto;
+                margin-top: 1cm;
+                margin-bottom: 2cm; /* Batas bawah aman dari garisan kertas printer */
+                margin-left: 1.5cm;
+                margin-right: 1.5cm;
+            }
+
+            /* Mencegah kotak TTD utama dan baris penerima terpotong gantung antar halaman */
+            .sig-container, .menerima-container {
+                page-break-inside: avoid;
+            }
+            .table-menerima tr {
+                page-break-inside: avoid;
+            }
+		
+			
+			.item-detail { 
+				border-bottom: 1px dashed #bbb; /* Garis putus-putus tipis */
+				padding: 5px 0;
+				display: flex;
+				justify-content: space-between;
+				align-items: flex-start;
+			}
+
+			
+			.item-detail:last-child { 
+				border-bottom: none; 
+			}
+
+			
+			.amount-wrapper {
+				display: flex;
+				justify-content: space-between;
+				width: 100%;
+				font-family: 'Courier New', Courier, monospace; /* Opsional: font angka biasanya lebih rapi pakai ini */
+			}
+
+			.rp-label {
+				text-align: left;
+				min-width: 30px;
+			}
+
+			.price-value {
+				text-align: right;
+				flex-grow: 1;
+			}
+
+			.price-value {
+				font-weight: normal;   /* tidak bold saat cetak */
+				color: #000;
+				font-family: 'Times New Roman', Times, serif;
+			}
+			#tampil-tanggal-pptk {
+				border-bottom: none !important;
+				display: inline !important;
+				min-width: auto !important;
+			}
+        }			
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="kop-surat">
+         <img src="logo.png" class="logo-luwu" alt="Logo Luwu">
+        
+        <h3 style="margin:0; font-size: 18px;">PEMERINTAH KABUPATEN LUWU</h3>
+        <h2 style="margin:0; font-size: 21px;">DINAS PENANAMAN MODAL DAN PELAYANAN<br>TERPADU SATU PINTU</h2>
+        <p style="margin:0; font-size: 11px;">Jl. Jend. Sudirman (Depan Lapangan A. Djemma) Kel. Senga Kec. Belopa Kode Pos 91994
+        <p style="margin:0; font-size: 11px;">
+			website: <span style="color: #0000FF;"><i>https://dpmptspluwukab.co.id</i></span> 
+			&nbsp;&nbsp; email: <span style="color: #0000FF;"><i>dpmptspluwu@gmail.com</i></span>
+		</p>
+		<p style="margin: 5px 0 0 0; font-size: 16px; font-weight: bold;">BELOPA</p>
+    </div>
+
+    <h4 class="text-center" style="text-decoration: underline; margin-bottom: 0; font-size: 14px;">RINCIAN PERHITUNGAN SPD</h4>
+    <div style="margin-top: 15px; font-size: 13px; line-height: 1.5; color: black;">
+        <div style="display: flex;">
+            <span style="width: 85px;">NOMOR</span>
+            <span style="width: 20px; text-align: center;">:</span>
+            <span class="bold" id="tampil-nomor">500.16.3.2/030/ST-DPMPTSP</span>
+        </div>
+        <div style="display: flex;">
+            <span style="width: 85px;">TANGGAL</span>
+            <span style="width: 20px; text-align: center;">:</span>
+            <span id="tampil-tanggal">-</span>
+        </div>
+    </div>
+
+    <div class="input-area no-print">
+        <div class="header-input">PANEL KENDALI INPUT DATA</div>       
+					<div class="sticky-brankas" style="padding: 6px 10px; display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap;">
+					<span style="color: #008080; font-size: 11.5px; font-weight: 500px;">Data akan tersimpan berdasarkan no. surat:</span>
+					<select id="pilih-arsip" style="width: 180px; border-color: #fcd34d; font-weight: bold; font-size: 10px; padding: 3px 5px; height: 25px;" onchange="muatArsip()">
+						<option value="">-- Daftar No. Surat Tersimpan --</option>
+					</select>
+					<button class="btn btn-add" style="background: linear-gradient(135deg, #f59e0b, #d97706); padding: 3px 8px; height: 25px; font-size: 9px; border-radius: 4px;" onclick="simpanArsip()">SIMPAN</button>
+					<button class="btn btn-reset" style="padding: 3px 8px; height: 25px; font-size: 9px; border-radius: 4px;" onclick="hapusArsip()">HAPUS</button>
+					<button class="btn" style="background: #3b82f6; color: white; padding: 3px 8px; height: 25px; font-size: 9px; border-radius: 4px;" onclick="backupData()">BACKUP</button>
+					<button class="btn" style="background: #10b981; color: white; padding: 3px 8px; height: 25px; font-size: 9px; border-radius: 4px;" onclick="document.getElementById('file-restore').click()">PULIHKAN</button>
+					<input type="file" id="file-restore" style="display: none;" accept=".txt" onchange="pulihkanData(event)">
+					<p id="info-memori" style="margin: 3px 0 0 0; font-size: 8px; color: #64748b;"></p>
+					</div>
+						<div style="display: flex; flex-direction: column; gap: 10px; padding-bottom: 15px; border-bottom: 1px dashed #ccc; margin-bottom: 15px;">
+							<div class="field">
+								<label>EDIT NOMOR SURAT</label>
+								<input type="text" id="input-nomor" value="500.16.3.2/030/ST-DPMPTSP" onkeyup="updateKopSurat()">
+							</div>
+							<div class="field">
+								<label>PILIH TANGGAL SURAT</label>
+								<div style="display: flex; gap: 5px; align-items: center;">
+					<input type="number" id="tgl-hari" min="1" max="31" value="1" style="width: 45px; padding: 4px 2px; font-size: 12px; text-align: center; border: 1px solid #ccc; border-radius: 4px;">
+					<select id="tgl-bulan" style="width: 85px; padding: 4px 2px; font-size: 12px;"> </select>
+					<select id="tgl-tahun" style="width: 60px; padding: 4px 2px; font-size: 12px; text-align: center;"> </select>
+				</div>
+			</div>
+        </div>
+		
+		<div class="input-group" style="padding-bottom: 15px; border-bottom: 1px dashed #ccc; margin-bottom: 15px;">
+    <div class="field" style="flex: 2;">
+        <label>MAKSUD PERJALANAN DINAS / KEGIATAN</label>
+        <textarea id="input-kegiatan" placeholder="Ketik nama kegiatan..." rows="2" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; font-family: inherit; resize: vertical; min-height: 40px;"></textarea>
+    </div>
+    <div class="field" style="flex: 1;">
+        <label>TEMPAT TUJUAN</label>
+        <input type="text" id="input-tujuan" placeholder="Contoh: Makassar">
+        <label style="margin-top:5px;">ALAT ANGKUTAN</label>
+        <input type="text" id="input-angkutan" value="Mobil Dinas/DP 1153 F">
+    </div>
+</div>
+		
+        <div class="category-tab">
+            <div id="tab-dalam" class="tab-item active" onclick="switchCat('dalam')">SPPD DALAM DAERAH</div>
+            <div id="tab-luar" class="tab-item" onclick="switchCat('luar')">SPPD LUAR DAERAH</div>
+        </div>
+
+        <div class="input-group">
+            <div class="field" style="flex: 2;">
+                <label>NAMA PEGAWAI (Ketik untuk mencari/menambah)</label>
+                <input list="list-pegawai" id="input-nama" onchange="autoFillJabatan()" onfocus="this.value=''" placeholder="Pilih atau Ketik Nama...">
+                <datalist id="list-pegawai"></datalist>
+            </div>
+            <div class="field" style="flex: 1.5;">
+                <label>JABATAN / PANGKAT (Bisa Ketik Manual)</label>
+                <input type="text" id="display-jabatan" placeholder="Ketik Jabatan...">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <div class="field" style="flex: 2;">
+				<label>RINCIAN BIAYA</label>
+				<input list="list-biaya" id="input-rincian" placeholder="Contoh: Uang Harian" onfocus="this.value=''">
+				<datalist id="list-biaya"></datalist>
+			</div>
+            <div class="field">
+				<label>HARGA SATUAN (Rp)</label>
+				<input type="text" id="input-harga" placeholder="0" onkeyup="formatRupiahInput(this)" onfocus="this.select()" list="list-harga">
+				<datalist id="list-harga"></datalist>
+			</div>
+            <div class="field" style="flex: 0.5;">
+                <label>(HARI)</label>
+                <input type="number" id="input-vol" value="1">
+            </div>
+            <button class="btn btn-add" onclick="tambahKeTabel()">+ TAMBAH BIAYA</button>
+        </div>
+        
+        <div class="input-group" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;">
+            <div class="field" style="flex: 1;">
+				<label>PILIH BENDAHARA</label>
+				<select id="pilihan-bendahara" onchange="updateBendahara()">
+					<option value="pembantu">Bendahara Pengeluaran (RATNA, SE)</option>
+					<option value="pengeluaran">Bendahara Pengeluaran Pembantu (M.B. RESKI)</option>
+				</select>
+			</div>
+            <div class="field" style="flex: 1;">
+				<label>PILIH PPTK</label>
+				<select id="pilihan-pptk" onchange="updatePPTK()">
+					<option value="rudi">RUDI SANTOSO, S.Sos (PPTK Barjas)</option>
+					<option value="raodah">A. RAODAH, SE (PPTK Bidang)</option>
+				</select>
+			</div>
+        </div>
+    </div>
+
+    <table id="tabelSPD">
+        <thead>
+            <tr>
+                <th width="4%">NO</th>
+                <th width="46%">RINCIAN BIAYA</th>
+                <th width="25%">JUMLAH</th>
+                <th width="25%">KET.</th>
+            </tr>
+        </thead>
+        <tbody id="isiTabel">
+            </tbody>
+    </table>
+
+    <div class="footer-section">
+        <p style="margin-bottom: 5px;">TELAH DI BAYAR SEJUMLAH <span style="margin-left:50px;">: </span><span class="bold" id="totalBawah">Rp. 0</span></p>
+        
+        <div class="terbilang-box">
+            Terbilang: <span id="terbilangText" style="text-transform: capitalize;">nol rupiah,-</span>
+        </div>
+
+        <div class="sig-container">
+            <div class="sig-box">
+				<p style="margin:0; margin-bottom: 5px;">&nbsp;</p>
+				<p id="label-bendahara" style="margin:0;">Bendahara Pengeluaran Pembantu</p>
+				<br><br><br>
+				<p id="nama-bendahara" class="bold" style="text-decoration: underline; margin-bottom: 0;">RATNA, SE</p>
+				<p id="nip-bendahara" style="margin-top: 2px;">NIP. 19731231 200906 2 004</p>
+			</div>
+            <div class="sig-box">
+				<p style="margin:0; margin-bottom: 5px;">Belopa, <span id="tampil-tanggal-ttd" contenteditable="true" style="border-bottom: 1px dashed #94a3b8; min-width: 100px; display: inline-block; text-align: left;"></span></p>
+                <p style="margin:0;">PPTK</p>
+                <br><br><br>
+                <p id="nama-pptk" class="bold" style="text-decoration: underline; margin-bottom: 0;">RUDI SANTOSO, S.Sos</p>
+                <p id="nip-pptk" style="margin-top: 2px;">NIP. 19811223 200502 1 004</p>
+            </div>
+        </div>
+
+        <div class="menerima-container">
+            <p style="margin-bottom: 5px;">Yang Menerima:</p>
+            <table class="table-menerima" id="list-menerima">
+                </table>
+        </div>
+    </div>
+
+		<div class="action-buttons">
+		<div class="action-buttons-left">
+			<button class="btn btn-print" onclick="window.print()">CETAK</button>
+			<button class="btn btn-print" style="background: linear-gradient(135deg, #10b981, #059669);" onclick="lemparKeCetakSPD()">CETAK SPD</button>
+			<button class="btn btn-print" style="background: linear-gradient(135deg, #8b5cf6, #6366f1);" onclick="lemparKeDokumentasi()">DOKUMENTASI</button>
+		</div>
+		<div class="action-buttons-right">
+			<button class="btn btn-clear-history" onclick="hapusRiwayatSaran()">HAPUS SARAN KETIKAN</button>
+			<button class="btn btn-reset" onclick="resetAplikasi()">RESET</button>
+		</div>
+	</div>
+	<div class="no-print" style="text-align: center; margin-top: 15px; font-size: 11px; color: #999; font-family: Arial, sans-serif;">
+    &copy; 2026 DPMPTSP Kabupaten Luwu - <i>Paulil Ranreng Andi Ahmad</i>
+</div>
+
+<script>
+    // --- DATABASE NAMA PEGAWAI (UPDATE TERBARU DPMPTSP) ---
+    const dataPegawai = [
+        {nama: "Drs. MUHAMMAD RUDI, M. Si", jabatan: "Kepala Dinas / (Pembina Utama Muda) IV/c"},
+        {nama: "KASNAR, SE, M. Si", jabatan: "Plt. Kepala Dinas / (Pembina Tk.I) IV/b"},
+        {nama: "MUHAMMAD REZA AKBAR, S.SI", jabatan: "Kasubag. Program"},
+        {nama: "HASRAL, ST", jabatan: "Kabid. Penyelenggaraan Pelayanan Perizinan / (Pembina) IV/a"},
+        {nama: "HASNIAH, SE", jabatan: "Kabid. Promosi Penanaman Modal / (Penata Tingkat I)/III/d"},
+        {nama: "ANDI HAFSAH, S.IP, M.Si", jabatan: "Penata Kelola Penanaman Modal Ahli Muda / Pembina IV/a"},        
+        {nama: "RUDI SANTOSO, S.Sos", jabatan: "Penata Kelola Penanaman Modal Ahli Muda / (Penata Tingkat I)/III/d"},        
+        {nama: "EMMY CHADIANA, ST", jabatan: "Penata Perizinan Ahli Muda / (Penata TK.I) III/d"},
+        {nama: "A. RAODAH, SE", jabatan: "Penata Kelola Penanaman Modal Ahli Muda / (Penata Tk.I) III/d"},
+        {nama: "ACHMAR, S.Sos", jabatan: "Penata Kelola Penanaman Modal Ahli Muda / (Penata Tk.I) III/d"},
+        {nama: "ANDI MASRI PANAUNGI, S. Sos", jabatan: "Penata Perizinan Ahli Muda / (Penata Tingkat I) III/d"},
+        {nama: "JUNAHIR, SE", jabatan: "Analis Kebijakan Ahli Muda / (Penata Tingkat I) III/d"},
+        {nama: "MASRIPA, S.AN", jabatan: "Penata Kelola Penanaman Modal Ahli Muda / Penata III/c"},
+        {nama: "HETTY ZULASTRY, S.AN", jabatan: "Penata Kelola Penanaman Modal Ahli Muda / (Penata Tk.I) III/d"},
+        {nama: "HAMDIANA HD, S.AN", jabatan: "Penata Kelola Penanaman Modal Ahli Muda / (Penata TK I) III/d"},        
+        {nama: "RATNA, SE", jabatan: "Bendahara / (Penata Muda Tk.I) III/b"},
+        {nama: "ANTON, S.M", jabatan: "Analis Pembinaan Kelembagaan Investasi / (Penata Tk.I) III/b"},
+        {nama: "M.B. RESKI", jabatan: "Pengolah Data Pelayanan / (Penata Muda)  III/a"},
+        {nama: "RAHMAWATI, S. AN", jabatan: "Analis Kebijakan Ahli Pertama / PPPK/IX"},
+        {nama: "ERNAWATI MOHA, S. AN", jabatan: "Analis Kebijakan Ahli Pertama / PPPK/ IX"},
+        {nama: "ANAMARIANA, S. Kom", jabatan: "Pranata Komputer / PPPK/ IX"},
+        {nama: "ANDI RAHMAD, S. Kom", jabatan: "Pranata Komputer / PPPK/ IX"},
+        {nama: "SARIAMA HASAN, A.Md.Kom", jabatan: "Pengelola layanan operasional / PPPK/ IX"},
+        {nama: "NUR HIKMAH, S.Kom", jabatan: "PPPK PW"},
+        {nama: "SURIANI", jabatan: "PPPK PW"},
+        {nama: "IRFAN DM, S.Kom", jabatan: "PPPK PW"},
+        {nama: "KAMRIAH, S.AP", jabatan: "PPPK PW"},
+        {nama: "ERNAWATI, S.AN", jabatan: "PPPK PW"},
+        {nama: "HERMINENGSIH, S.AN", jabatan: "PPPK PW"},
+        {nama: "ADIYATMA MAS'UD, SE", jabatan: "PPPK PW"},
+        {nama: "PAISAL, S.AN", jabatan: "PPPK PW"},
+        {nama: "HARIYATI HAMZAH, S.Si", jabatan: "PPPK PW"},
+        {nama: "NERLIS WAHYUNI, S.Pd", jabatan: "PPPK PW"},
+        {nama: "ANDI NURUL HAQQ, S.PWK", jabatan: "PPPK PW"},
+        {nama: "ELSA SAFITRI", jabatan: "PPPK PW"},
+        {nama: "SURAHMI, S.Pd", jabatan: "PPPK PW"},
+        {nama: "RAHMI RUSLAN, A.Md.Kom", jabatan: "PPPK PW"},
+        {nama: "NUNUNG ANITA, S.TP", jabatan: "PPPK PW"},
+        {nama: "RESKY N, S. AN", jabatan: "Petugas Kebersihan"},
+        {nama: "BASTIAN", jabatan: "PPPK PW"},
+        {nama: "HARNITA, S.Kom", jabatan: "PPPK PW"},
+        {nama: "ATIKA RIFAI", jabatan: "PPPK PW"},
+        {nama: "ILHAM SADIK, S.P", jabatan: "SUPIR"},
+        {nama: "NURPATMI", jabatan: "PPPK PW"},
+        {nama: "AHMAD", jabatan: "SUPIR"},
+        {nama: "PAULIL RANRENG ANDI AHMAD, S.Kom", jabatan: "Pranata Komputer / PPPK/IX"},
+        {nama: "ANDI IRAWAN RASYID, S. Or", jabatan: "Kabid. Pengendalian Pelaksanaan Penanaman Modal"},
+        {nama: "WAWAN, ST", jabatan: "Kabid. Perencanaan dan Pengembangan Iklim Penanaman Modal"},
+        {nama: "WIWIN, A. Md, S. S", jabatan: "Analis Pelayanan / (Penata Muda Tingkat I) III/b"}
+    ];
+
+    // --- DATABASE BIAYA LENGKAP ---
+const biayaDalam = [
+    "Uang Harian Dalam Daerah",
+    "Biaya Transportasi",
+    "Biaya BBM/PP",
+    "Biaya Sewa Kendaraan",
+    "Biaya Parkir",
+    "Biaya Tol",
+    "Biaya Konsumsi (Real Cost)",
+    "Uang Representatif",
+    "Biaya Penginapan (Real Cost)",
+    "Biaya Penginapan (30%)"
+];
+
+const biayaLuar = [
+    "Uang Harian Luar Daerah",
+    "Uang Saku",
+    "Biaya Tiket Pesawat Udara",
+    "Biaya Tiket Kapal Laut",
+    "Biaya Tiket Kereta Api",
+    "Airport Tax/Biaya Bandara",
+    "Biaya Transportasi Bandara/Pelabuhan",
+    "Biaya Transportasi Lokal",
+    "Biaya Sewa Kendaraan",
+    "Biaya BBM/PP",
+    "Biaya Parkir",
+    "Biaya Tol",
+    "Biaya Konsumsi (Real Cost)",
+    "Biaya Penginapan Hotel (Real Cost)",
+    "Biaya Penginapan Hotel (30%)",
+    "Biaya Rapid Test/PCR/Swab",
+    "Biaya Komunikasi/Pulsa",
+    "Uang Representatif"
+];
+
+    let currentCat = 'dalam';
+    let rekapData = [];
+    
+    
+    let customBiaya = JSON.parse(localStorage.getItem('riwayatBiaya')) || [];
+    let riwayatHarga = JSON.parse(localStorage.getItem('riwayatHarga')) || [];
+    let arsipSPPD = JSON.parse(localStorage.getItem('arsipSistemSPPD')) || {};
+
+    
+		document.addEventListener('DOMContentLoaded', function() {
+		initData();
+		initTanggalDropdown();
+		updateKopSurat();
+		updateInfoMemori();  // ← Tampilkan info memori saat halaman dibuka
+	});
+
+    function initData() {
+        const lp = document.getElementById('list-pegawai');
+        if (lp) {
+            lp.innerHTML = "";
+            dataPegawai.forEach(p => {
+                let opt = document.createElement('option');
+                opt.value = p.nama;
+                lp.appendChild(opt);
+            });
+        }
+        updateBiayaList();
+        updateHargaList();
+        updateArsipDropdown();
+    }
+
+    function updateHargaList() {
+        const lh = document.getElementById('list-harga');
+        if (!lh) return;
+        lh.innerHTML = "";
+        riwayatHarga.forEach(h => {
+            let opt = document.createElement('option');
+            opt.value = h;
+            lh.appendChild(opt);
+        });
+    }
+    
+    function updateArsipDropdown() {
+        const select = document.getElementById('pilih-arsip');
+        if (!select) return;
+        select.innerHTML = '<option value="">-- Daftar No. Surat Tersimpan --</option>';
+        for (let nomorST in arsipSPPD) {
+            let opt = document.createElement('option');
+            opt.value = nomorST;
+            opt.innerText = "" + nomorST;
+            select.appendChild(opt);
+        }
+    }
+
+    function simpanArsip() {
+    const nomorST = document.getElementById('input-nomor').value;
+    if (!nomorST || rekapData.length === 0) {
+        alert("Gagal menyimpan! Pastikan Nomor Surat sudah diisi dan tabel tidak kosong.");
+        return;
+    }
+    
+    arsipSPPD[nomorST] = {
+        data: rekapData,
+        kegiatan: document.getElementById('input-kegiatan').value,
+        tanggal: {
+            hari: document.getElementById('tgl-hari').value,
+            bulan: document.getElementById('tgl-bulan').value,
+            tahun: document.getElementById('tgl-tahun').value
+        }
+    };
+        
+    const kunciArsip = Object.keys(arsipSPPD);
+    if (kunciArsip.length > 30) {
+        const kunciTerlama = kunciArsip.slice(0, kunciArsip.length - 30);
+        kunciTerlama.forEach(kunci => delete arsipSPPD[kunci]);
+    }
+    
+    localStorage.setItem('arsipSistemSPPD', JSON.stringify(arsipSPPD));
+    updateArsipDropdown();
+    updateInfoMemori();  
+    document.getElementById('pilih-arsip').value = nomorST;
+    alert("Mantap Bos! Data Surat Tugas nomor " + nomorST + " berhasil disimpan ke arsip.");
+}
+    function muatArsip() {
+    const nomorST = document.getElementById('pilih-arsip').value;
+    if (nomorST === "") {
+        if (rekapData.length > 0) {
+            if (confirm("Yakin ingin mengosongkan tabel untuk membuat Surat Tugas baru?")) {
+                rekapData = [];
+                renderTabel();
+                
+                document.getElementById('input-kegiatan').value = "";
+            } else {
+                document.getElementById('pilih-arsip').value = document.getElementById('input-nomor').value;
+            }
+        }
+    } else {
+        const arsip = arsipSPPD[nomorST];
+        
+        
+        if (Array.isArray(arsip)) {
+            
+            rekapData = arsip;
+            
+            document.getElementById('input-kegiatan').value = "";
+        } else {
+            
+            rekapData = arsip.data;
+            document.getElementById('input-kegiatan').value = arsip.kegiatan || "";
+            
+            
+            if (arsip.tanggal) {
+                document.getElementById('tgl-hari').value = arsip.tanggal.hari;
+                document.getElementById('tgl-bulan').value = arsip.tanggal.bulan;
+                document.getElementById('tgl-tahun').value = arsip.tanggal.tahun;
+            }
+        }
+        
+        document.getElementById('input-nomor').value = nomorST;
+        updateKopSurat();
+        renderTabel();
+    }
+}
+
+    function hapusArsip() {
+        const nomorST = document.getElementById('pilih-arsip').value;
+        if (nomorST === "") {
+            alert("Pilih dulu arsip mana yang mau dihapus bos!");
+            return;
+        }
+        if (confirm("Yakin ingin menghapus permanen arsip ST nomor " + nomorST + "?")) {
+            delete arsipSPPD[nomorST];
+            localStorage.setItem('arsipSistemSPPD', JSON.stringify(arsipSPPD));
+            updateArsipDropdown();
+            rekapData = [];
+            renderTabel();
+            updateInfoMemori();  // ← Update setelah hapus
+			alert("Arsip berhasil dihapus.");
+        }
+    }
+
+    function switchCat(cat) {
+        currentCat = cat;
+        document.getElementById('tab-dalam').className = cat === 'dalam' ? 'tab-item active' : 'tab-item';
+        document.getElementById('tab-luar').className = cat === 'luar' ? 'tab-item active' : 'tab-item';
+        updateBiayaList();
+    }
+
+    function updateBiayaList() {
+        const lb = document.getElementById('list-biaya');
+        if (!lb) return;
+        lb.innerHTML = "";
+        let listBase = currentCat === 'dalam' ? biayaDalam : biayaLuar;
+        let fullList = [...new Set([...listBase, ...customBiaya])]; 
+        
+        fullList.forEach(b => {
+            let opt = document.createElement('option');
+            opt.value = b;
+            lb.appendChild(opt);
+        });
+    }
+
+    function autoFillJabatan() {
+        const nama = document.getElementById('input-nama').value;
+        const p = dataPegawai.find(x => x.nama === nama);
+        if(p) document.getElementById('display-jabatan').value = p.jabatan;
+    }
+
+    function formatRupiahInput(angka) {
+        let number_string = angka.value.replace(/[^,\d]/g, '').toString();
+        let split = number_string.split(',');
+        let sisa = split[0].length % 3;
+        let rupiah = split[0].substr(0, sisa);
+        let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+        if(ribuan){
+            let separator = sisa ? '.' : '';
+            rupiah += separator + ribuan.join('.');
+        }
+        angka.value = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+    }
+
+    function tambahKeTabel() {
+        const nama = document.getElementById('input-nama').value;
+        const rincian = document.getElementById('input-rincian').value;
+        const jabatan = document.getElementById('display-jabatan').value; 
+        
+        let hargaRaw = document.getElementById('input-harga').value.replace(/\./g, '');
+        const harga = parseInt(hargaRaw) || 0;
+        const vol = parseInt(document.getElementById('input-vol').value) || 1;
+        const subtotal = harga * vol;
+
+        if(!nama || !rincian || harga <= 0) { alert("Data belum lengkap Bos!"); return; }
+        
+        let hargaTeks = document.getElementById('input-harga').value;
+			if (hargaTeks && !riwayatHarga.includes(hargaTeks)) {
+				riwayatHarga.push(hargaTeks);
+				// 🔥 BATASI 20 HARGA TERAKHIR
+				if (riwayatHarga.length > 20) riwayatHarga.shift();
+				localStorage.setItem('riwayatHarga', JSON.stringify(riwayatHarga));
+				updateHargaList();
+			}
+
+			if(!biayaDalam.includes(rincian) && !biayaLuar.includes(rincian) && !customBiaya.includes(rincian)) {
+				customBiaya.push(rincian);
+				// 🔥 BATASI 20 BIAYA TERAKHIR
+				if (customBiaya.length > 20) customBiaya.shift();
+				localStorage.setItem('riwayatBiaya', JSON.stringify(customBiaya));
+				updateBiayaList();
+			}
+
+        let person = rekapData.find(p => p.nama === nama);
+        if (!person) {
+            person = { nama: nama, jabatan: jabatan, items: [] };
+            rekapData.push(person);
+        } else {
+            person.jabatan = jabatan; 
+        }
+        
+        person.items.push({ rincian: rincian, harga: harga, vol: vol, jumlah: subtotal });
+        
+        renderTabel();
+        
+        document.getElementById('input-rincian').value = "";
+        document.getElementById('input-harga').value = "";
+        document.getElementById('input-vol').value = "1";
+        document.getElementById('input-rincian').focus();
+    }
+
+    function renderTabel() {
+        const tbody = document.getElementById('isiTabel');
+        if (!tbody) return;
+        tbody.innerHTML = "";
+        let totalSemua = 0;
+        
+        rekapData.forEach((p, index) => {
+            let subtotalPerson = 0;
+            let rowCount = p.items.length + 1;
+
+            
+            let trName = document.createElement('tr');
+            trName.innerHTML = `
+                <td class="text-center" rowspan="${rowCount}" style="vertical-align: top; padding-top: 10px; border-top: none;">${index + 1}</td>
+                <td class="bold" style="border-bottom: none; border-top: none; padding-top: 10px; padding-bottom: 2px;">${p.nama}</td>
+                <td style="border-bottom: none; border-top: none;"></td>
+                <td rowspan="${rowCount}" style="vertical-align: top; padding-top: 10px; border-top: none;">
+                    ${p.jabatan}
+                    <br><br>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <button class="no-print" style="background:#3b82f6; color:white; border:none; padding:5px 8px; border-radius:4px; cursor:pointer; font-size:10px; font-weight:bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" onclick="lemparKePengeluaranReal(${index})">Cetak Pengeluaran Real</button>
+                        <button class="no-print" style="background:#f59e0b; color:white; border:none; padding:5px 8px; border-radius:4px; cursor:pointer; font-size:10px; font-weight:bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" onclick="lemparKeKuitansi(${index})">Cetak Kuitansi</button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(trName);
+
+            p.items.forEach((item, idx) => {
+                let detailVol = item.vol > 1 ? `<br><span class="italic" style="padding-left:12px;">(${item.vol} hari x ${formatTitik(item.harga)})</span>` : ``;
+                let isLast = idx === p.items.length - 1;
+                let borderStyle = isLast ? 'border-top: none; border-bottom: none;' : 'border-top: none; border-bottom: 1px dashed #aaa;';
+                let btnHapus = `<span class="no-print btn-delete-row" onclick="hapusBaris(${index}, ${idx})" title="Hapus biaya ini">&times;</span>`;
+
+                let trItem = document.createElement('tr');
+                trItem.innerHTML = `
+                    <td style="${borderStyle} padding-top: 6px; padding-bottom: 6px; vertical-align: top;">
+                        <span style="margin-left: 5px;">- ${item.rincian} ${detailVol} ${btnHapus}</span>
+                    </td>
+                    <td style="${borderStyle} padding-top: 6px; padding-bottom: 6px; vertical-align: bottom;">
+                        <div class="amount-wrapper">
+                            <span class="rp-label">Rp.</span>
+                            <span class="price-value">${formatTitik(item.jumlah)}</span>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(trItem);
+                subtotalPerson += item.jumlah;
+            });
+
+            let trSub = document.createElement('tr');
+            trSub.innerHTML = `
+                <td style="border-top: none; border-bottom: 1px solid black;"></td>
+                <td class="text-right bold" style="padding-right: 15px; border-top: 1px dashed #333;">JUMLAH</td>
+                <td class="text-right bold" style="border-top: 1px dashed #333;">
+                    <div class="amount-wrapper">
+                        <span class="rp-label">Rp.</span>
+                        <span class="price-value">${formatTitik(subtotalPerson)}</span>
+                    </div>
+                </td>
+                <td style="border-top: none; border-bottom: 1px solid black;"></td>
+            `;
+            tbody.appendChild(trSub);
+            
+            totalSemua += subtotalPerson;
+        });
+        
+        let trGrandTotal = document.createElement('tr');
+        trGrandTotal.className = "bold";
+        trGrandTotal.style.backgroundColor = "#f9f9f9"; 
+        trGrandTotal.innerHTML = `
+            <td colspan="2" class="text-right" style="padding: 10px 15px;">TOTAL KESELURUHAN</td>
+            <td class="text-right" style="padding: 10px 6px;">
+                <div class="amount-wrapper">
+                    <span class="rp-label">Rp.</span>
+                    <span class="price-value">${formatTitik(totalSemua)}</span>
+                </div>
+            </td>
+            <td></td>
+        `;
+        tbody.appendChild(trGrandTotal);
+        
+        updateFooter(totalSemua);
+    }
+
+    function updateFooter(totalSemua) {        
+        document.getElementById('totalBawah').innerHTML = `Rp. ${formatTitik(totalSemua)}`;
+        document.getElementById('terbilangText').innerHTML = terbilang(totalSemua) + " rupiah,-";
+
+        const listMenerima = document.getElementById('list-menerima');
+        if (!listMenerima) return;
+        listMenerima.innerHTML = "";
+        
+        rekapData.forEach((p, index) => {
+            let subtotal = p.items.reduce((sum, item) => sum + item.jumlah, 0);
+            let no = index + 1;
+            let sigLeft = no % 2 !== 0 ? `${no}. ........................` : ``;
+            let sigRight = no % 2 === 0 ? `${no}. ........................` : ``;
+            
+            // Diberikan pengaturan khusus (page-break-inside: avoid) agar baris TTD penerima tidak terpotong saat nyebrang halaman 2
+            listMenerima.innerHTML += `
+                <tr style="page-break-inside: avoid;">
+                    <td width="5%" style="vertical-align: top; font-weight: bold; text-align: center;">${no}.</td>
+                    <td width="40%" style="white-space: nowrap; vertical-align: top;">${p.nama}</td>
+                    <td width="15%" style="vertical-align: top;">Rp. &nbsp;&nbsp; ${formatTitik(subtotal)}</td>
+                    <td width="20%" style="vertical-align: bottom;">${sigLeft}</td>
+                    <td width="20%" class="text-right" style="vertical-align: bottom;">${sigRight}</td>
+                </tr>
+            `;
+        });
+    }
+
+    function formatTitik(n) {
+        return new Intl.NumberFormat('id-ID').format(n);
+    }
+
+	function updateInfoMemori() {
+    let totalBytes = new Blob([JSON.stringify(localStorage)]).size;
+    let kb = (totalBytes / 1024).toFixed(2);
+    let maxKb = 5120; // 5MB batas localStorage
+    let persen = ((totalBytes / (maxKb * 1024)) * 100).toFixed(1);
+    let jumlahArsip = Object.keys(arsipSPPD).length;
+    
+    let elInfo = document.getElementById('info-memori');
+    if (elInfo) {
+        elInfo.innerText = '💾 ' + kb + ' KB (' + persen + '%) | Arsip: ' + jumlahArsip + '/30 | Saran: ' + customBiaya.length + '/20';
+        elInfo.style.color = persen > 80 ? '#ef4444' : '#64748b';
+    }
+}
+	
+    function terbilang(a) {
+        var bilangan = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas"];
+        var kalimat = "";
+        if (a < 12) kalimat = bilangan[a];
+        else if (a < 20) kalimat = terbilang(a - 10) + " belas";
+        else if (a < 100) kalimat = terbilang(Math.floor(a / 10)) + " puluh " + terbilang(a % 10);
+        else if (a < 200) kalimat = "seratus " + terbilang(a - 100);
+        else if (a < 1000) kalimat = terbilang(Math.floor(a / 100)) + " ratus " + terbilang(a % 100);
+        else if (a < 2000) kalimat = "seribu " + terbilang(a - 1000);
+        else if (a < 1000000) kalimat = terbilang(Math.floor(a / 1000)) + " ribu " + terbilang(a % 1000);
+        else if (a < 1000000000) kalimat = terbilang(Math.floor(a / 1000000)) + " juta " + terbilang(a % 1000000);
+        return kalimat.replace(/\s+/g, ' ').trim();
+    }
+
+    function resetAplikasi() {
+    if(confirm("Yakin ingin mengosongkan tabel dan mulai dari awal?")) {
+        rekapData = [];
+        renderTabel();
+        document.getElementById('input-nama').value = "";
+        document.getElementById('display-jabatan').value = "";
+        document.getElementById('input-kegiatan').value = "";
+        document.getElementById('input-rincian').value = "";
+        document.getElementById('input-harga').value = "";
+        document.getElementById('input-vol').value = "1";
+        
+        // Reset tanggal ke hari ini
+        let now = new Date();
+        document.getElementById('tgl-hari').value = now.getDate();
+        document.getElementById('tgl-bulan').value = now.getMonth() + 1;
+        document.getElementById('tgl-tahun').value = now.getFullYear();
+        updateKopSurat();
+        
+        document.getElementById('input-nama').focus();
+        document.getElementById('pilih-arsip').value = ""; 
+		updateInfoMemori();  // ← Update setelah reset
+		
+    }
+}
+    
+    function updateBendahara() {
+        const pilihan = document.getElementById('pilihan-bendahara').value;
+        if (pilihan === "pembantu") {
+            document.getElementById('label-bendahara').innerText = "Bendahara Pengeluaran";
+            document.getElementById('nama-bendahara').innerText = "RATNA, SE";   
+            document.getElementById('nip-bendahara').innerText = "NIP. 19731231 200906 2 004";   
+        } else if (pilihan === "pengeluaran") {
+            document.getElementById('label-bendahara').innerText = "Bendahara Pengeluaran Pembantu";
+            document.getElementById('nama-bendahara').innerText = "M.B. RESKI";
+            document.getElementById('nip-bendahara').innerText = "NIP. 19751202 200801 1 005";
+        }
+    }
+
+    // FUNGSI BARU UNTUK SINKRONISASI DROPDOWN PPTK
+    function updatePPTK() {
+        const pilihan = document.getElementById("pilihan-pptk").value;
+        const namaPPTK = document.getElementById("nama-pptk");
+        const nipPPTK = document.getElementById("nip-pptk");
+        
+        if (pilihan === "rudi") {
+            namaPPTK.innerText = "RUDI SANTOSO, S.Sos";
+            nipPPTK.innerText = "NIP. 19811223 200502 1 004";
+        } else if (pilihan === "raodah") {
+            namaPPTK.innerText = "A. RAODAH, SE";
+            nipPPTK.innerText = "NIP. 19710121 201001 2 004";
+        }
+    }
+
+    function updateKopSurat() {
+        const inputNomor = document.getElementById('input-nomor');
+        if(inputNomor) document.getElementById('tampil-nomor').innerText = inputNomor.value;
+
+        let hari = document.getElementById('tgl-hari').value;
+        let bulanAngka = document.getElementById('tgl-bulan').value;
+        let tahun = document.getElementById('tgl-tahun').value;
+
+        if (hari && bulanAngka && tahun) {
+            let bulanNama = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", 
+                             "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            let namaBulan = bulanNama[parseInt(bulanAngka) - 1];
+            document.getElementById('tampil-tanggal').innerText = `${hari} ${namaBulan} ${tahun}`;
+        }
+    }
+
+    function hapusRiwayatSaran() {
+        if(confirm("Yakin ingin menghapus memori saran Rincian dan Harga?")) {
+            localStorage.removeItem('riwayatBiaya');
+            localStorage.removeItem('riwayatHarga');
+            customBiaya = [];
+            riwayatHarga = [];
+            updateBiayaList();
+            updateHargaList();
+            alert("Mantap Bos! Saran riwayat berhasil dibersihkan.");
+        }
+    }
+
+    function hapusBaris(personIndex, itemIndex) {
+        if(confirm("Yakin ingin menghapus biaya ini dari tabel?")) {
+            rekapData[personIndex].items.splice(itemIndex, 1);
+            if(rekapData[personIndex].items.length === 0) {
+                rekapData.splice(personIndex, 1);
+            }
+            renderTabel();
+        }
+    }
+    
+		function initTanggalDropdown() {
+			let hariInput = document.getElementById('tgl-hari');
+			let bulanSelect = document.getElementById('tgl-bulan');
+			let tahunSelect = document.getElementById('tgl-tahun');
+			
+			if (!hariInput || !bulanSelect || !tahunSelect) return;
+
+			// Kosongkan dropdown bulan & tahun
+			bulanSelect.innerHTML = "";
+			tahunSelect.innerHTML = "";
+
+			// Isi dropdown bulan
+			let bulanNama = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", 
+							 "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+			for (let i = 0; i < bulanNama.length; i++) {
+				let opt = document.createElement('option');
+				opt.value = i + 1;
+				opt.innerText = bulanNama[i];
+				bulanSelect.appendChild(opt);
+			}
+			
+			// Isi dropdown tahun
+			let tahunSkrg = new Date().getFullYear();
+			for (let i = tahunSkrg - 0; i <= tahunSkrg + 1; i++) {
+				let opt = document.createElement('option');
+				opt.value = i;
+				opt.innerText = i;
+				tahunSelect.appendChild(opt);
+			}
+
+			// Set nilai default hari ini
+			let now = new Date();
+			hariInput.value = now.getDate();
+			bulanSelect.value = now.getMonth() + 1;
+			tahunSelect.value = now.getFullYear();
+
+			// Event listener untuk update kop surat
+			hariInput.addEventListener('input', function() {
+			let val = this.value.replace(/[^0-9]/g, ''); // Hanya angka
+			
+			
+			if (val === '') {
+				this.value = '';
+				updateKopSurat();
+				return;
+			}
+			
+			let num = parseInt(val);
+			
+			// Jika lebih dari 31, potong digit terakhir
+			if (num > 31) {
+				this.value = val.slice(0, -1);
+			} else if (num < 1 && val.length === 1) {
+				this.value = '';
+			} else {
+				this.value = num;
+			}
+			
+			updateKopSurat();
+		});
+			bulanSelect.addEventListener('change', updateKopSurat);
+			tahunSelect.addEventListener('change', updateKopSurat);
+		}
+    
+    function backupData() {
+        let dataBackup = {
+            arsip: localStorage.getItem('arsipSistemSPPD') || "{}",
+            riwayatBiaya: localStorage.getItem('riwayatBiaya') || "[]",
+            riwayatHarga: localStorage.getItem('riwayatHarga') || "[]"
+        };
+        
+        let dataString = JSON.stringify(dataBackup);
+        let blob = new Blob([dataString], {type: "text/plain"});
+        let url = URL.createObjectURL(blob);
+        
+        let a = document.createElement('a');
+        a.href = url;
+        let date = new Date();
+        let tgl = date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
+        a.download = "Backup_SPPD_Luwu_" + tgl + ".txt";
+        
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        alert("Backup berhasil! File sudah di-download.");
+    }
+
+    function pulihkanData(event) {
+        let file = event.target.files[0];
+        if (!file) return;
+
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                let isiFile = e.target.result;
+                let dataPulih = JSON.parse(isiFile);
+                
+                if(dataPulih.arsip !== undefined) {
+                    localStorage.setItem('arsipSistemSPPD', dataPulih.arsip);
+                    localStorage.setItem('riwayatBiaya', dataPulih.riwayatBiaya);
+                    localStorage.setItem('riwayatHarga', dataPulih.riwayatHarga);
+                    
+                    arsipSPPD = JSON.parse(dataPulih.arsip);
+                    customBiaya = JSON.parse(dataPulih.riwayatBiaya);
+                    riwayatHarga = JSON.parse(dataPulih.riwayatHarga);
+                    
+                    updateArsipDropdown();
+                    updateBiayaList();
+                    updateHargaList();
+					updateInfoMemori();
+                    
+                    alert("Mantap Bos! Data SPPD berhasil dipulihkan.");
+                } else {
+                    alert("Gagal memulihkan! File backup rusak.");
+                }
+            } catch (error) {
+                alert("Error! Pastikan file valid.");
+            }
+            event.target.value = "";
+        };
+        reader.readAsText(file);
+    }
+    
+    // --- MESIN PELEMPAR DATA KE FILE KEDUA ---
+    function lemparKePengeluaranReal(indexOrang) {
+        let orangPilihan = rekapData[indexOrang];
+        let nomorSurat = document.getElementById('input-nomor') ? document.getElementById('input-nomor').value : "";
+        let tglSurat = document.getElementById('tampil-tanggal') ? document.getElementById('tampil-tanggal').innerText : "";
+        
+        let maksudKegiatan = document.getElementById('input-kegiatan') ? document.getElementById('input-kegiatan').value : "-";
+        let ruteTujuan = document.getElementById('input-tujuan') ? document.getElementById('input-tujuan').value : "";
+        
+        let paketData = {
+            nomor: nomorSurat,
+            tanggal: tglSurat,
+            kegiatan: maksudKegiatan, 
+            tujuan: ruteTujuan,        
+            nama: orangPilihan.nama,
+            jabatan: orangPilihan.jabatan,
+            rincian: orangPilihan.items
+        };
+        
+        localStorage.setItem('paketPengeluaranReal', JSON.stringify(paketData));
+        window.open('Pengeluaran Real.html', '__self');
+    }
+	
+	// --- MESIN PELEMPAR DATA KE KUITANSI (PERORANGAN) ---
+    function lemparKeKuitansi(indexOrang) {
+        let orangPilihan = rekapData[indexOrang];
+        let nomorSurat = document.getElementById('input-nomor') ? document.getElementById('input-nomor').value : "";
+        let tglSurat = document.getElementById('tampil-tanggal') ? document.getElementById('tampil-tanggal').innerText : "";
+        let maksudKegiatan = document.getElementById('input-kegiatan') ? document.getElementById('input-kegiatan').value : "-";
+        let ruteTujuan = document.getElementById('input-tujuan') ? document.getElementById('input-tujuan').value : "";
+        
+        let paketData = {
+            nomor: nomorSurat,
+            tanggal: tglSurat,
+            kegiatan: maksudKegiatan, 
+            tujuan: ruteTujuan,        
+            nama: orangPilihan.nama,
+            jabatan: orangPilihan.jabatan,
+            rincian: orangPilihan.items
+        };
+        
+        localStorage.setItem('paketKuitansi', JSON.stringify(paketData));
+        window.open('Cetak_Kuitansi.html', '_blank'); // _blank agar terbuka di tab baru, panel utama tidak tertutup
+    }
+	
+	// --- FITUR SARAN TANGGAL ---
+document.addEventListener("DOMContentLoaded", function() {
+    const daftarBulan = [
+        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+    ];
+
+    const elTglPPTK = document.getElementById('tampil-tanggal-pptk');
+    let tahunBerjalan = new Date().getFullYear();
+
+    if (elTglPPTK) {
+        
+        elTglPPTK.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab' || e.key === 'Enter') {
+                e.preventDefault();
+                let teks = this.innerText.trim();
+                let kata = teks.split(' ');
+                
+                let kataTerakhir = kata[kata.length - 1];
+                let cocokBulan = daftarBulan.find(b => b.toLowerCase() === kataTerakhir.toLowerCase());
+                
+                if (cocokBulan && !teks.includes(String(tahunBerjalan))) {
+                    this.innerText = teks + ' ' + tahunBerjalan;
+                }
+                
+                let range = document.createRange();
+                let sel = window.getSelection();
+                range.selectNodeContents(this);
+                range.collapse(false);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        });
+
+        // Saran otomatis saat mengetik nama bulan
+        elTglPPTK.addEventListener('input', function(e) {
+            let teks = this.innerText.toLowerCase().trim();
+            let kata = teks.split(' ');
+            let kataTerakhir = kata[kata.length - 1];
+            
+            if (/^\d+$/.test(kataTerakhir)) return;
+            
+            if (kataTerakhir.length >= 2) {
+                let cocok = daftarBulan.find(b => b.toLowerCase().startsWith(kataTerakhir));
+                
+                if (cocok) {
+                    let teksAwal = kata.slice(0, -1).join(' ');
+                    let spasi = teksAwal ? ' ' : '';
+                    
+                    this.innerText = teksAwal + spasi + cocok + ' ' + tahunBerjalan;
+                    
+                    let range = document.createRange();
+                    let sel = window.getSelection();
+                    let textNode = this.childNodes[0] || this;
+                    let posAkhir = this.innerText.length;
+                    let posAwal = posAkhir - String(tahunBerjalan).length;
+                    
+                    range.setStart(textNode, posAwal);
+                    range.setEnd(textNode, posAkhir);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+            }
+        });
+    }
+});
+
+
+    function lemparKeCetakSPD() {
+        if(rekapData.length === 0) {
+            alert("Tabel masih kosong Bos! Input data pegawai yang berangkat dulu.");
+            return;
+        }
+        
+        let lamaHari = 1;
+        rekapData.forEach(p => {
+            if(p.items && p.items.length > 0) {
+                let maxOrang = Math.max(...p.items.map(i => i.vol));
+                if(maxOrang > lamaHari) lamaHari = maxOrang;
+            }
+        });
+
+        let paketSPD = {
+            nomor: document.getElementById('input-nomor') ? document.getElementById('input-nomor').value : "",
+            tanggal: document.getElementById('tampil-tanggal') ? document.getElementById('tampil-tanggal').innerText : "",
+            kegiatan: document.getElementById('input-kegiatan') ? document.getElementById('input-kegiatan').value : "-",
+            tujuan: document.getElementById('input-tujuan') ? document.getElementById('input-tujuan').value : "-",
+            angkutan: document.getElementById('input-angkutan') ? document.getElementById('input-angkutan').value : "Mobil Dinas",
+            kategori: currentCat === 'dalam' ? 'Perjalanan Dinas Dalam Daerah' : 'Perjalanan Dinas Luar Daerah',
+            lama: lamaHari,
+            rombongan: rekapData.map(p => ({
+                nama: p.nama,
+                jabatanLengkap: p.jabatan
+            }))
+        };
+        
+        localStorage.setItem('paketCetakSPD', JSON.stringify(paketSPD));
+        
+        
+        window.open('Cetak SPD.html', '_blank'); 
+    }
+
+    function lemparKeDokumentasi() {
+        if(rekapData.length === 0) {
+            alert("Tabel masih kosong Bos! Input data pegawai yang berangkat dulu.");
+            return;
+        }
+       
+        let lamaHari = 1;
+        rekapData.forEach(p => {
+            if(p.items && p.items.length > 0) {
+                let maxOrang = Math.max(...p.items.map(i => i.vol));
+                if(maxOrang > lamaHari) lamaHari = maxOrang;
+            }
+        });
+
+        let paketSPD = {
+            nomor: document.getElementById('input-nomor') ? document.getElementById('input-nomor').value : "",
+            tanggal: document.getElementById('tampil-tanggal') ? document.getElementById('tampil-tanggal').innerText : "",
+            kegiatan: document.getElementById('input-kegiatan') ? document.getElementById('input-kegiatan').value : "-",
+            tujuan: document.getElementById('input-tujuan') ? document.getElementById('input-tujuan').value : "-",
+            angkutan: document.getElementById('input-angkutan') ? document.getElementById('input-angkutan').value : "Mobil Dinas",
+            kategori: currentCat === 'dalam' ? 'Perjalanan Dinas Dalam Daerah' : 'Perjalanan Dinas Luar Daerah',
+            lama: lamaHari,
+            rombongan: rekapData.map(p => ({
+                nama: p.nama,
+                jabatanLengkap: p.jabatan
+            }))
+        };
+        
+        localStorage.setItem('paketCetakSPD', JSON.stringify(paketSPD));
+                
+        window.open('Cetak_Dokumentasi.html', '_blank');
+    }
+	
+</script>
+</body>
+</html>

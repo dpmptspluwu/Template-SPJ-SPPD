@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Cetak Kuitansi SPPD</title>
+    <style>
+        body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1,5; padding: 20px; background: #eef2f5; color: #000; margin: 0; }
+        .kertas { background: white; max-width: 800px; margin: auto; padding: 40px 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 4px; position: relative; }
+        
+        /* KOP SURAT */
+        .kop-wadah { position: relative; text-align: center; min-height: 100px; }
+        .logo-kuitansi { position: absolute; left: 0px; top: 0; width: 90px; height: 105px; }
+        .kop-text { margin-left: 90px; margin-right: 90px; }
+        
+        /* HEADER KUITANSI */
+        .kuitansi-header { display: flex; justify-content: space-between; margin-top: 15px; margin-bottom: 20px; font-size: 11pt; }
+        .judul-kuitansi { text-align: center; font-size: 12pt; font-weight: bold; text-decoration: underline; margin: 0; letter-spacing: 1px; }
+        
+        /* TABEL UTAMA */
+        .tabel-form { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .tabel-form td { vertical-align: top; padding: 6px 4px; }
+        .kolom-label { width: 140px; }
+        .kolom-titik { width: 15px; text-align: center; }
+        
+        /* TABEL RINCIAN */
+        .tabel-rincian { width: 85%; margin-left: 15%; border-collapse: collapse; margin-top: 15px; }
+        .tabel-rincian td { padding: 4px; vertical-align: top; }
+        
+        /* TABEL TTD (3 POSISI) */
+        .tabel-ttd { width: 100%; border-collapse: collapse; margin-top: 40px; text-align: left; }
+        .tabel-ttd td { width: 50%; vertical-align: top; padding-bottom: 30px; }
+        
+        /* ELEMEN INTERAKTIF & PRINT */
+        .editable { outline: none; border-bottom: 1px dotted #ccc; transition: 0.2s; display: inline-block; min-width: 50px; }
+        .editable:focus { border-bottom: 1px solid #000; background: #fef3c7; }
+        .select-inline { background: #f8f9fa; border: 1px solid #ccc; padding: 2px 4px; font-family: inherit; font-size: 11pt; border-radius: 4px; margin-bottom: 4px; }
+        
+        .floating-buttons { position: fixed; top: 20px; right: 20px; display: flex; gap: 8px; z-index: 999; }
+        .btn-action { padding: 8px 16px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; color: white; font-size: 11px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn-print { background: #3b82f6; }
+        .btn-close { background: #ef4444; }
+
+        @media print {
+            body { background: white; padding: 0; margin: 0; }
+            .kertas { padding: 0; box-shadow: none; margin: 0; width: 100%; }
+            .floating-buttons, .no-print { display: none !important; }
+            .editable { border-bottom: none !important; background: transparent !important; }
+            .select-inline { display: none; }
+            
+            @page { size: 215mm 330mm; margin: 0cm 1.5cm 1.5cm 1.5cm; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="floating-buttons no-print">
+    <button onclick="window.print()" class="btn-action btn-print">CETAK</button>
+    <button onclick="window.close()" class="btn-action btn-close">TUTUP</button>
+</div>
+
+<div class="kertas">
+    <div class="kop-wadah">
+        <img src="logo.png" class="logo-kuitansi" alt="Logo Luwu" onerror="this.style.display='none'">
+        <div class="kop-text">
+            <div style="font-size: 14pt; font-weight: bold;">PEMERINTAH KABUPATEN LUWU</div>
+            <div style="font-size: 16pt; font-weight: bold;">DINAS PENANAMAN MODAL DAN PELAYANAN<br>TERPADU SATU PINTU</div>
+            <div style="font-size: 10pt; margin-top: 5px;">Jl. Jend. Sudirman (Depan Lapangan A. Djemma) Kel. Senga Kec. Belopa Kode Pos 91994</div>
+            <div style="font-size: 10pt;">website : <span style="color: blue;"><i>https://dpmptspluwukab.co.id</i></span> email : <span style="color: blue;"><i>dpmptspluwu@gmail.com</i></span></div>
+        </div>
+    </div>
+    <div style="border-bottom: 2px solid black; margin-top: 5px;"></div>
+    <div style="border-bottom: 1px solid black; margin-top: 2px;"></div>
+
+    <div class="kuitansi-header">
+        <div>No. Kuitansi : <span id="tampil-nomor" class="editable" contenteditable="true"></span></div>
+        <div>Tahun Anggaran : <span id="tampil-tahun" class="editable" contenteditable="true">2026</span></div>
+    </div>
+
+    <h3 class="judul-kuitansi">KUITANSI</h3>
+
+    <table class="tabel-form">
+        <tr>
+            <td class="kolom-label">Sudah terima dari</td>
+            <td class="kolom-titik">:</td>
+            <td>
+                <select id="pilih-pembayar" class="select-inline no-print" onchange="gantiPembayar()">
+                    <option value="Bendahara Pengeluaran">Bendahara Pengeluaran</option>
+                    <option value="Bendahara Pengeluaran Pembantu">Bendahara Pengeluaran Pembantu</option>
+                </select>
+                <div id="tampil-pembayar" class="editable" contenteditable="true">Bendahara Pengeluaran</div>
+            </td>
+        </tr>
+        <tr>
+            <td class="kolom-label">Sebesar</td>
+            <td class="kolom-titik">:</td>
+            <td style="font-weight: bold;">Rp. <span id="tampil-total">0</span>,-</td>
+        </tr>
+        <tr>
+            <td class="kolom-label">Terbilang</td>
+            <td class="kolom-titik">:</td>
+            <td id="tampil-terbilang" class="editable" contenteditable="true" style="text-transform: capitalize;">-</td>
+        </tr>
+        <tr>
+            <td class="kolom-label">Untuk pengeluaran</td>
+            <td class="kolom-titik">:</td>
+            <td style="text-align: left; line-height: 1.5;">
+                Biaya perjalanan dinas dalam rangka <span id="tampil-kegiatan" class="editable" contenteditable="true" style="display: inline;">...</span> dengan rincian:
+            </td>
+        </tr>
+    </table>
+
+    <table class="tabel-rincian" id="tempat-rincian">
+        </table>
+
+    <table class="tabel-ttd">
+        <tr>
+            <td></td>
+            <td style="padding-left: 20px;">
+                Belopa, <span id="tampil-tanggal-ttd" class="editable" contenteditable="true"></span><br><br>
+                Penerima<br><br><br><br><br>
+                <b id="nama-penerima" style="text-decoration: underline;" class="editable" contenteditable="true">NAMA PEGAWAI</b>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Menyetujui,<br>
+                <select id="pilih-kpa" class="select-inline no-print" onchange="gantiKPA()">
+                    <option value="KASNAR, SE., M.Si|19700405 200212 1 007|Pengguna Anggaran">Pengguna Anggaran</option>
+                    <option value="Drs. MUHAMMAD RUDI, M. Si|19740411 199302 1 002|Pengguna Anggaran">Pengguna Anggaran</option>
+                </select>
+                <div id="label-kpa" class="editable" contenteditable="true">Pengguna Anggaran,</div><br><br><br><br>
+                <b id="nama-kpa" style="text-decoration: underline;" class="editable" contenteditable="true">KASNAR, SE., M.Si</b><br>
+                NIP. <span id="nip-kpa" class="editable" contenteditable="true">19700405 200212 1 007</span>
+            </td>
+            <td style="padding-left: 20px;">
+                <select id="pilih-bendahara" class="select-inline no-print" onchange="gantiBendahara()">
+					<option value="RATNA, SE|19731231 200906 2 004|Bendahara Pengeluaran">Bendahara Pengeluaran</option>
+                    <option value="M.B. RESKI|19751202 200801 1 005|Bendahara Pengeluaran Pembantu">Bendahara Pengeluaran Pembantu</option>                    
+                </select>
+                <div id="label-bendahara" class="editable" contenteditable="true" style="margin-bottom:17px;">Bendahara Pengeluaran</div><br><br><br><br>
+                <b id="nama-bendahara" style="text-decoration: underline;" class="editable" contenteditable="true">RATNA, SE</b><br>
+                NIP. <span id="nip-bendahara" class="editable" contenteditable="true">19731231 200906 2 004</span>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        let dataSppd = JSON.parse(localStorage.getItem('paketKuitansi'));
+        
+        if (dataSppd) {
+            document.getElementById('tampil-nomor').innerText = dataSppd.nomor || "";
+            document.getElementById('tampil-kegiatan').innerText = dataSppd.kegiatan || "";
+            
+            
+            if (dataSppd.tanggal) {
+                document.getElementById('tampil-tanggal-ttd').innerText = dataSppd.tanggal;
+                let parts = dataSppd.tanggal.split(' ');
+                if (parts.length >= 3) {
+                    let tahun = parts[parts.length - 1];
+                    if (!isNaN(tahun)) document.getElementById('tampil-tahun').innerText = tahun;
+                }
+            }
+
+            document.getElementById('nama-penerima').innerText = dataSppd.nama || "...................";
+
+            
+            let totalUang = 0;
+            let htmlRincian = "";
+
+            if (dataSppd.rincian && dataSppd.rincian.length > 0) {
+                dataSppd.rincian.forEach((item, index) => {
+                    let nilaiAngka = parseInt(item.jumlah) || 0;
+                    totalUang += nilaiAngka;
+                    
+                    let volume = parseInt(item.vol) || 1;
+                    let hargaSatuan = item.harga ? parseInt(item.harga) : Math.floor(nilaiAngka / volume);
+                    
+                    let hitungan = `${hargaSatuan.toLocaleString('id-ID')} x ${volume}`;
+                    let totalStr = `Rp. ${nilaiAngka.toLocaleString('id-ID')},-`;
+                    
+                    htmlRincian += `
+                        <tr>
+                            <td style="width: 5%;">${index + 1}.</td>
+                            <td style="width: 45%;">${item.rincian}</td>
+                            <td style="width: 20%;">: ${hitungan}</td>
+                            <td style="width: 30%;">: ${totalStr}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            document.getElementById('tempat-rincian').innerHTML = htmlRincian;
+            document.getElementById('tampil-total').innerText = totalUang.toLocaleString('id-ID');
+            document.getElementById('tampil-terbilang').innerText = terbilang(totalUang) + " rupiah";
+        }
+    });
+
+    // Fitur Ganti Pejabat Instan
+    function gantiKPA() {
+        let val = document.getElementById('pilih-kpa').value.split('|');
+        document.getElementById('nama-kpa').innerText = val[0];
+        document.getElementById('nip-kpa').innerText = val[1];
+        document.getElementById('label-kpa').innerText = val[2] + ",";
+    }
+
+    function gantiBendahara() {
+        let val = document.getElementById('pilih-bendahara').value.split('|');
+        document.getElementById('nama-bendahara').innerText = val[0];
+        document.getElementById('nip-bendahara').innerText = val[1];
+        document.getElementById('label-bendahara').innerText = val[2];
+    }
+    
+    function gantiPembayar() {
+        document.getElementById('tampil-pembayar').innerText = document.getElementById('pilih-pembayar').value;
+    }
+
+    // Mesin Terbilang
+    function terbilang(a) {
+        var bilangan = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas"];
+        var kalimat = "";
+        if (a < 12) kalimat = bilangan[a];
+        else if (a < 20) kalimat = terbilang(a - 10) + " belas";
+        else if (a < 100) kalimat = terbilang(Math.floor(a / 10)) + " puluh " + terbilang(a % 10);
+        else if (a < 200) kalimat = "seratus " + terbilang(a - 100);
+        else if (a < 1000) kalimat = terbilang(Math.floor(a / 100)) + " ratus " + terbilang(a % 100);
+        else if (a < 2000) kalimat = "seribu " + terbilang(a - 1000);
+        else if (a < 1000000) kalimat = terbilang(Math.floor(a / 1000)) + " ribu " + terbilang(a % 1000);
+        else if (a < 1000000000) kalimat = terbilang(Math.floor(a / 1000000)) + " juta " + terbilang(a % 1000000);
+        return kalimat.replace(/\s+/g, ' ').trim();
+    }
+
+  
+    const daftarBulan = [
+        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+    ];
+    const elTgl = document.getElementById('tampil-tanggal-ttd');
+    
+    if (elTgl) {        
+        elTgl.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab' || e.key === 'Enter') {
+                e.preventDefault();
+                let teks = this.innerText.trim();
+                let kata = teks.split(' ');
+                let kataTerakhir = kata[kata.length - 1];
+                let cocokBulan = daftarBulan.find(b => b.toLowerCase() === kataTerakhir.toLowerCase());
+                
+                
+                let tahunTampil = document.getElementById('tampil-tahun') ? document.getElementById('tampil-tahun').innerText : new Date().getFullYear();
+                
+                if (cocokBulan && !teks.includes(String(tahunTampil))) {
+                    this.innerText = teks + ' ' + tahunTampil;
+                }
+                
+                let range = document.createRange();
+                let sel = window.getSelection();
+                range.selectNodeContents(this);
+                range.collapse(false);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        });
+        
+        elTgl.addEventListener('input', function(e) {
+            let teks = this.innerText.toLowerCase().trim();
+            let kata = teks.split(' ');
+            let kataTerakhir = kata[kata.length - 1];
+            
+            if (/^\d+$/.test(kataTerakhir)) return;
+            
+            if (kataTerakhir.length >= 2) {
+                let cocok = daftarBulan.find(b => b.toLowerCase().startsWith(kataTerakhir));
+                if (cocok) {
+                    let teksAwal = kata.slice(0, -1).join(' ');
+                    let spasi = teksAwal ? ' ' : '';
+                    let tahunTampil = document.getElementById('tampil-tahun') ? document.getElementById('tampil-tahun').innerText : new Date().getFullYear();
+                    
+                    this.innerText = teksAwal + spasi + cocok + ' ' + tahunTampil;
+                                        
+                    let range = document.createRange();
+                    let sel = window.getSelection();
+                    let textNode = this.childNodes[0] || this;
+                    let posAkhir = this.innerText.length;
+                    let posAwal = posAkhir - String(tahunTampil).length;
+                    
+                    range.setStart(textNode, posAwal);
+                    range.setEnd(textNode, posAkhir);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>
