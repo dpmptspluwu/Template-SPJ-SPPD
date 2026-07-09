@@ -236,8 +236,9 @@
                 <div class="signature-box" style="text-align: center;">
                     <div style="margin-bottom: 5px;">Mengetahui :</div>
                     <select id="pilih-penyetuju" class="select-pejabat no-print" onchange="gantiPenyetuju()">
-                        <option value="kasnar">KASNAR, SE. M.Si</option>
-                        <option value="rudi">Drs. MUHAMMAD RUDI, M. Si</option>
+                        <option value="kasnar">Plt. Kepala Dinas</option>
+						<option value="kasnar1">Plh. Kepala Dinas</option>
+                        <option value="rudi">Kepala Dinas</option>
                     </select>
                     
                     <div id="jabatan-penyetuju" class="editable" contenteditable="true" style="margin-top: 5px;">Plt. Kepala Dinas,</div>
@@ -304,6 +305,7 @@
         // Database Pejabat
         const daftarPenyetuju = {
             "kasnar": { nama: "KASNAR, SE. M.Si", nip: "19700405 200212 1 007", jabatan: "Plt. Kepala Dinas," },
+			"kasnar1": { nama: "KASNAR, SE. M.Si", nip: "19700405 200212 1 007", jabatan: "Plh. Kepala Dinas," },
             "rudi": { nama: "Drs. MUHAMMAD RUDI, M. Si", nip: "19740411 199302 1 002", jabatan: "Kepala Dinas," }
         };
 
