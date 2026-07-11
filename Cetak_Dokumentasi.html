@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <title>Cetak Laporan Dokumentasi - DPMPTSP Luwu</title>
     <style>
-       
+        
         body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; background: #eef2f5; line-height: 1.4; color: #000; margin: 0; padding: 0; }
-        
-        
+                
         .panel-kontrol { 
             position: sticky; top: 0; z-index: 1000; background: #1e293b; border-bottom: 3px solid #10b981; 
             padding: 10px 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; 
@@ -34,7 +33,6 @@
         .btn-cetak:hover { background: #059669; transform: translateY(-1px); }
         .btn-tutup { background: #ef4444; color: white; box-shadow: 0 2px 4px rgba(239,68,68,0.2); }
         .btn-tutup:hover { background: #dc2626; transform: translateY(-1px); }
-
         
         .kertas { background: white; max-width: 800px; margin: 30px auto; padding: 30px 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #ddd; }
         
@@ -57,7 +55,6 @@
         .editable:focus { background-color: #f8f9fa; border-bottom: 1px solid #333; }
 
         .hint-placeholder { color: #94a3b8; font-style: italic; font-size: 10pt; display: block; margin-top: 5px; }
-
         
         .foto-container { 
             display: flex; flex-wrap: wrap; justify-content: center; 
@@ -80,8 +77,7 @@
             font-family: Arial; font-size: 10px; font-weight: bold; opacity: 0; pointer-events: none; transition: 0.2s; 
         }
         .foto-wrapper:hover .foto-hapus-hint { opacity: 1; }
-
-       
+        
         .blok-penutup {
             page-break-inside: avoid;
             margin-top: 20px;
@@ -103,8 +99,7 @@
         }
         .tabel-pembuat { width: 100%; border-collapse: collapse; }
         .tabel-pembuat td { border: none; }
-
-       
+        
         @media print {
             @page { size: 215mm 330mm; margin: 0cm 1.5cm 2cm 1.5cm; }
             body { padding: 0; background: white; margin: 0; }
@@ -165,7 +160,7 @@
                 <div style="font-size: 21px; font-weight: bold; margin-bottom: 3px;">DINAS PENANAMAN MODAL DAN PELAYANAN<br>TERPADU SATU PINTU</div>
                 <div style="font-size: 9pt; margin-bottom: 2px;">Jl. Jend. Sudirman (Depan Lapangan A. Djemma) Kel. Senga Kec. Belopa Kode Pos 91994</div>
                 <div style="font-size: 9pt; margin-bottom: 6px;">
-                    website: <span style="color: #0000FF;"><i>https://dpmptsp.luwukab.go.id</i></span> 
+                    website: <span style="color: #0000FF;"><i>https://dpmptsp.luwukab.go.id </i></span> 
                     &nbsp;&nbsp; email: <span style="color: #0000FF;"><i>dpmptspluwu@gmail.com</i></span>
                 </div>
                 <div style="font-size: 14pt; font-weight: bold;">BELOPA</div>
@@ -223,7 +218,7 @@
             </div>
 
             <div class="signature-section">
-                <div class="signature-box" style="text-align: center;">
+                <div class="signature-box" style="text-align: center; padding-left: 10px; width: 35%;">
                     <div style="margin-bottom: 5px;">Mengetahui :</div>
                     <select id="pilih-penyetuju" class="select-pejabat no-print" onchange="gantiPenyetuju()">
                         <option value="kasnar">Plt. Kepala Dinas</option>
@@ -231,9 +226,9 @@
                         <option value="rudi">Kepala Dinas</option>
                     </select>
                     
-                    <div id="jabatan-penyetuju" class="editable" contenteditable="true" style="margin-top: 5px;">Plt. Kepala Dinas,</div>
+                    <div id="jabatan-penyetuju" class="editable" contenteditable="true" style="margin-top: 1px;">Plt. Kepala Dinas,</div>
                     
-                    <div style="height: 60px;"></div>
+                    <div style="height: 50px;"></div>
                     
                     <div id="nama-penyetuju" style="font-weight: bold; text-decoration: underline;" class="editable" contenteditable="true">KASNAR, SE. M.Si</div>
                     <div>NIP. <span id="nip-penyetuju" class="editable" contenteditable="true">19700405 200212 1 007</span></div>
@@ -282,7 +277,7 @@
                         htmlTTD += `
                             <tr>
                                 <td style="width: 5%; vertical-align: top; padding-top: 25px;">${no}.</td>
-                                <td style="width: 65%; vertical-align: top; padding-top: 25px; line-height: 1.25;" class="editable" contenteditable="true">${orang.nama}</td>
+                                <td style="width: 65%; vertical-align: top; padding-top: 25px; line-height: 1.25; white-space: nowrap;" class="editable" contenteditable="true">${orang.nama}</td>
                                 <td style="width: 30%; vertical-align: bottom; padding-top: 25px; text-align: right;">.........................</td>
                             </tr>
                         `;
@@ -291,8 +286,7 @@
                 }
             }
         });
-        
-        // Database Pejabat
+               
         const daftarPenyetuju = {
             "kasnar": { nama: "KASNAR, SE. M.Si", nip: "19700405 200212 1 007", jabatan: "Plt. Kepala Dinas," },
 			"kasnar1": { nama: "KASNAR, SE. M.Si", nip: "19700405 200212 1 007", jabatan: "Plh. Kepala Dinas," },
@@ -334,8 +328,7 @@
             }
             return "...";
         }
-
-        // Fitur Tanggal
+        
         const elTanggalSaja = document.getElementById('tampil-tanggal-saja');
         const elHariOtomatis = document.getElementById('tampil-hari-otomatis');
         const daftarBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
@@ -371,8 +364,7 @@
                 }
             });
         }
-		
-		
+				
         const elTglTtd = document.getElementById('tampil-tanggal-ttd');
         if(elTglTtd) {
             elTglTtd.addEventListener('keydown', function(e) {
