@@ -26,7 +26,7 @@
         .tabel-rincian { width: calc(100% - 180px); margin-left: 170px; border-collapse: collapse; margin-top: 15px; }
         .tabel-rincian td { padding: 4px; vertical-align: top; }
         
-        /* TABEL TTD (3 POSISI) */
+        /* TABEL TTD */
         .tabel-ttd { width: 100%; border-collapse: collapse; margin-top: 40px; text-align: left; }
         .tabel-ttd td { width: 50%; vertical-align: top; padding-bottom: 30px; }
         
@@ -115,14 +115,14 @@
     <table class="tabel-ttd">
         <tr>
             <td></td>
-            <td style="padding-left: 20px;">
+            <td style="padding-left: 40px;">
                 Belopa, <span id="tampil-tanggal-ttd" class="editable" contenteditable="true"></span><br><br>
                 Penerima<br><br><br><br><br>
                 <b id="nama-penerima" style="text-decoration: underline;" class="editable" contenteditable="true">NAMA PEGAWAI</b>
             </td>
         </tr>
         <tr>
-            <td>
+            <td style="padding-left: 50px;">
                 Menyetujui,<br>
                 <select id="pilih-kpa" class="select-inline no-print" onchange="gantiKPA()">
                     <option value="KASNAR, SE., M.Si|19700405 200212 1 007|Pengguna Anggaran">Pengguna Anggaran</option>
@@ -133,7 +133,7 @@
                 <b id="nama-kpa" style="text-decoration: underline;" class="editable" contenteditable="true">KASNAR, SE., M.Si</b><br>
                 NIP. <span id="nip-kpa" class="editable" contenteditable="true">19700405 200212 1 007</span>
             </td>
-            <td style="padding-left: 20px;">
+            <td style="padding-left: 40px;">
                 <select id="pilih-bendahara" class="select-inline no-print" onchange="gantiBendahara()">
 					<option value="RATNA, SE|19731231 200906 2 004|Bendahara Pengeluaran">Bendahara Pengeluaran</option>
                     <option value="M.B. RESKI|19751202 200801 1 005|Bendahara Pengeluaran Pembantu">Bendahara Pengeluaran Pembantu</option>                    
