@@ -45,7 +45,6 @@
         ol { padding-left: 20px; margin: 5px 0 10px 0; }
         li { margin-bottom: 10px; text-align: justify; }
 
-        /* TABEL UTAMA */
         .main-table {
             width: 100%;
             border-collapse: collapse;
@@ -90,22 +89,21 @@
 			padding-top: 6px;
 			padding-bottom: 6px;
 		}
-
-        /* TANDA TANGAN SEJAJAR DENGAN RUANG CUKUP */
+        
         .signature-section {
 		display: flex;
 		justify-content: space-between;
-		align-items: stretch;          /* ← UBAH: samakan tinggi kedua kotak */
+		align-items: stretch;          
 		margin-top: 30px;
 		gap: 20px;
 	}
 	.signature-box {
 		width: 45%;
 		text-align: center;
-		min-height: 180px;             /* ← UBAH: tambah tinggi biar ada ruang tanda tangan */
+		min-height: 180px;             
 		display: flex;
 		flex-direction: column;
-		justify-content: space-between; /* ← UBAH: header di atas, nama di bawah */
+		justify-content: space-between; 
 	}
         .ttd-header {
             text-align: center;
@@ -113,7 +111,7 @@
             flex-shrink: 0;
         }
         .name-block {
-            margin-top: auto;            /* dorong ke bawah */
+            margin-top: auto;            
             text-align: center;
             flex-shrink: 0;
         }
@@ -128,7 +126,6 @@
 			line-height: 1.2;
 		}
 
-        /* DROPDOWN MODERN & KECIL, INLINE DENGAN TEKS */
         .select-pejabat {
             display: inline-block;
             width: auto;
@@ -150,8 +147,7 @@
             outline: none;
             box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
         }
-
-        /* TOMBOL AKSI */
+      
         .action-buttons {
             position: fixed;
             top: 20px;
@@ -204,7 +200,6 @@
         min-width: auto !important;
     }
     
-    /* NIP tetap terlihat normal saat cetak */
     #tampil-nip, #tampil-nip-ttd {
         outline: none !important;
         border: none !important;
@@ -255,8 +250,7 @@
 
     <p>Demikian pernyataan ini kami buat dengan sebenarnya untuk dipergunakan sebagaimana mestinya.</p>
 
-    <div class="signature-section">
-        <!-- KOTAK KIRI: MENYETUJUI -->
+    <div class="signature-section">        
         <div class="signature-box">
             <div class="ttd-header">
                 <span>Mengetahui/Menyetujui :</span>
@@ -266,15 +260,12 @@
                     <option value="rudi">Kepala Dinas</option>                   
                 </select>
                 <div id="jabatan-penyetuju" style="margin-top: 5px;">Plt. Kepala Dinas</div>
-            </div>
-            <!-- Ruang kosong otomatis didorong oleh margin-top: auto pada .name-block -->
+            </div>            
             <div class="name-block">
                 <div class="name-title" id="nama-penyetuju">KASNAR, SE. M.Si</div>
                 <div class="nip-text">Nip. <span id="nip-penyetuju">19700405 200212 1 007</span></div>
             </div>
         </div>
-
-        <!-- KOTAK KANAN: YANG MENERIMA -->
 <div class="signature-box">
     <div class="ttd-header">
         <div>Belopa, <span id="tampil-tanggal-ttd" contenteditable="true" style="border-bottom: 1px dashed #94a3b8; min-width: 120px; display: inline-block;"></span></div>
@@ -371,7 +362,6 @@
                 document.getElementById('tampil-kegiatan').innerText = (data.kegiatan && data.kegiatan !== "-") ? data.kegiatan : "......................................................";
             }
 
-// Isi NIP hanya jika masih kosong atau placeholder
 const elNip = document.getElementById('tampil-nip');
 const elNipTtd = document.getElementById('tampil-nip-ttd');
 
@@ -388,7 +378,6 @@ if (elNipTtd) {
     }
 }
 
-// Sinkronisasi NIP: saat NIP di tabel info diedit, NIP di TTD ikut berubah
 if (elNip) {
     elNip.addEventListener('input', function() {
         if (elNipTtd) {
@@ -397,7 +386,6 @@ if (elNip) {
     });
 }
 
-// Sinkronisasi sebaliknya: saat NIP di TTD diedit, NIP di tabel info juga ikut
 if (elNipTtd) {
     elNipTtd.addEventListener('input', function() {
         if (elNip) {
@@ -433,7 +421,6 @@ if (elNipTtd) {
 
 					let detailVol = item.vol > 1 ? ` (${item.vol} hari)` : '';
 					
-					// Cek apakah perlu garis putus-putus
 					let jumlahItem = data.rincian.length;
 					let isLast = (i === jumlahItem - 1);
 					let borderStyle = (jumlahItem > 1 && !isLast) ? 'border-bottom: 1px dashed #999;' : 'border-bottom: none;';
@@ -481,33 +468,27 @@ if (elNipTtd) {
 			return new Intl.NumberFormat('id-ID').format(n);
 		}
 		
-		// Daftar nama bulan
 	const daftarBulan = [
 		"Januari", "Februari", "Maret", "April", "Mei", "Juni",
 		"Juli", "Agustus", "September", "Oktober", "November", "Desember"
 	];
 
-	// Fitur saran cerdas untuk tanggal TTD
 	const elTgl = document.getElementById('tampil-tanggal-ttd');
 	let tahunBerjalan = new Date().getFullYear();
 
 	elTgl.addEventListener('keydown', function(e) {
-		// Jika user tekan Tab atau Enter, terima saran
 		if (e.key === 'Tab' || e.key === 'Enter') {
 			e.preventDefault();
 			let teks = this.innerText.trim();
 			let kata = teks.split(' ');
 			
-			// Cek apakah kata terakhir adalah nama bulan (tanpa tahun)
 			let kataTerakhir = kata[kata.length - 1];
 			let cocokBulan = daftarBulan.find(b => b.toLowerCase() === kataTerakhir.toLowerCase());
 			
 			if (cocokBulan && !teks.includes(String(tahunBerjalan))) {
-				// Tambahkan tahun berjalan
 				this.innerText = teks + ' ' + tahunBerjalan;
 			}
 			
-			// Pindahkan kursor ke akhir
 			let range = document.createRange();
 			let sel = window.getSelection();
 			range.selectNodeContents(this);
@@ -522,22 +503,18 @@ if (elNipTtd) {
 		let kata = teks.split(' ');
 		let kataTerakhir = kata[kata.length - 1];
 		
-		// Abaikan jika kata terakhir adalah angka (tahun)
 		if (/^\d+$/.test(kataTerakhir)) return;
 		
-		// Cek apakah kata terakhir mirip dengan nama bulan (minimal 2 huruf)
 		if (kataTerakhir.length >= 2) {
 			let cocok = daftarBulan.find(b => b.toLowerCase().startsWith(kataTerakhir));
 			
 			if (cocok) {
-				// Ambil teks sebelum kata terakhir
+
 				let teksAwal = kata.slice(0, -1).join(' ');
 				let spasi = teksAwal ? ' ' : '';
 				
-				// Update teks dengan bulan lengkap + tahun berjalan
 				this.innerText = teksAwal + spasi + cocok + ' ' + tahunBerjalan;
 				
-				// Pilih teks tahun agar bisa langsung diganti jika perlu
 				let range = document.createRange();
 				let sel = window.getSelection();
 				let textNode = this.childNodes[0] || this;
@@ -565,7 +542,6 @@ if (elNipTtd) {
         if (data) {
             document.getElementById('nama-penyetuju').innerText = data.nama;
             document.getElementById('nip-penyetuju').innerText = data.nip;
-            // BARIS BARU: Mengubah teks jabatan sesuai pilihan dropdown
             document.getElementById('jabatan-penyetuju').innerText = data.jabatan;
         }
     }
